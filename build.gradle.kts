@@ -722,6 +722,7 @@ tasks {
 
     register("scriptingTest") {
         dependsOn("scriptingJvmTest")
+        dependsOn("scriptingK2Test")
     }
 
     register("compilerTest") {
