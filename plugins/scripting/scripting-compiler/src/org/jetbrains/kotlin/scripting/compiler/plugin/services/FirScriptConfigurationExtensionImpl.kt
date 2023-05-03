@@ -12,17 +12,16 @@ import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.builder.FirScriptConfiguratorExtension
 import org.jetbrains.kotlin.fir.builder.FirScriptConfiguratorExtension.Factory
-import org.jetbrains.kotlin.fir.copyWithNewSourceKind
 import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
 import org.jetbrains.kotlin.fir.declarations.builder.*
 import org.jetbrains.kotlin.fir.declarations.impl.FirDeclarationStatusImpl
 import org.jetbrains.kotlin.fir.declarations.impl.FirDefaultPropertyGetter
 import org.jetbrains.kotlin.fir.declarations.primaryConstructorIfAny
+import org.jetbrains.kotlin.fir.declarations.utils.SCRIPT_SPECIAL_NAME_STRING
 import org.jetbrains.kotlin.fir.expressions.FirExpression
 import org.jetbrains.kotlin.fir.moduleData
 import org.jetbrains.kotlin.fir.resolve.providers.dependenciesSymbolProvider
 import org.jetbrains.kotlin.fir.symbols.SymbolInternals
-import org.jetbrains.kotlin.fir.symbols.impl.FirPropertyAccessorSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirPropertySymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirRegularClassSymbol
 import org.jetbrains.kotlin.fir.types.builder.buildUserTypeRef
@@ -56,7 +55,7 @@ class FirScriptConfiguratorExtensionImpl(
             // TODO: rewrite/extract decision logic for clarity
             configuration[ScriptCompilationConfiguration.baseClass]?.let { baseClass ->
                 val baseClassFqn = FqName.fromSegments(baseClass.typeName.split("."))
-                contextReceivers.add(buildContextReceiverWithFqName(baseClassFqn))
+                contextReceivers.add(buildContextReceiverWithFqName(baseClassFqn, Name.special(SCRIPT_SPECIAL_NAME_STRING)))
 
                 val baseClassSymbol =
                     session.dependenciesSymbolProvider.getClassLikeSymbolByClassId(ClassId(baseClassFqn.parent(), baseClassFqn.shortName()))
@@ -173,15 +172,18 @@ class FirScriptConfiguratorExtensionImpl(
         configuration?.let { body.invoke(it) }
     }
 
-    private fun buildContextReceiverWithFqName(baseClassFqn: FqName) =
+    private fun buildContextReceiverWithFqName(classFqn: FqName, customName: Name? = null) =
         buildContextReceiver {
             typeRef = buildUserTypeRef {
                 isMarkedNullable = false
                 qualifier.addAll(
-                    baseClassFqn.pathSegments().map {
+                    classFqn.pathSegments().map {
                         FirQualifierPartImpl(null, it, FirTypeArgumentListImpl(null))
                     }
                 )
+            }
+            if (customName != null) {
+                customLabelName = customName
             }
         }
 
