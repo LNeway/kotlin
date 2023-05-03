@@ -66,7 +66,7 @@ class FirScriptConfiguratorExtensionImpl(
                         parameters.add(
                             buildProperty {
                                 moduleData = session.moduleData
-                                origin = FirDeclarationOrigin.ScriptCustomization
+                                origin = FirDeclarationOrigin.ScriptCustomization.Default
                                 // TODO: copy type parameters?
                                 returnTypeRef = baseCtorParameter.returnTypeRef
                                 name = baseCtorParameter.name
@@ -92,7 +92,7 @@ class FirScriptConfiguratorExtensionImpl(
                 parameters.add(
                     buildProperty {
                         moduleData = session.moduleData
-                        origin = FirDeclarationOrigin.ScriptCustomization
+                        origin = FirDeclarationOrigin.ScriptCustomization.Default
                         returnTypeRef = typeRef
                         name = Name.identifier(propertyName)
                         symbol = FirPropertySymbol(name)
@@ -135,13 +135,13 @@ class FirScriptConfiguratorExtensionImpl(
                             this.symbol = FirPropertySymbol(this.name)
                             source = lastExpression.source
                             moduleData = session.moduleData
-                            origin = FirDeclarationOrigin.ScriptCustomization
+                            origin = FirDeclarationOrigin.ScriptCustomization.ResultProperty
                             initializer = lastExpression
                             returnTypeRef = lastExpression.typeRef
                             getter = FirDefaultPropertyGetter(
                                 lastExpression.source,
                                 session.moduleData,
-                                FirDeclarationOrigin.ScriptCustomization,
+                                FirDeclarationOrigin.ScriptCustomization.ResultProperty,
                                 lastExpression.typeRef,
                                 Visibilities.Public,
                                 this.symbol,
