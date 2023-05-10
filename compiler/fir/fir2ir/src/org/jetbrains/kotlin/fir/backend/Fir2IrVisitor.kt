@@ -572,14 +572,14 @@ class Fir2IrVisitor(
             }
             // NB: IR generates anonymous objects as classes, not singleton objects
             if (firClass is FirRegularClass && firClass.classKind == ClassKind.OBJECT && !isThisForClassPhysicallyAvailable(irClass)) {
-                return thisReceiverExpression.convertWithOffsets { startOffset, endOffset ->
+                return thisReceiverExpression.source.convertWithOffsets { startOffset, endOffset ->
                     IrGetObjectValueImpl(startOffset, endOffset, irClass.defaultType, irClass.symbol)
                 }
             }
 
             val dispatchReceiver = conversionScope.dispatchReceiverParameter(irClass)
             if (dispatchReceiver != null) {
-                return thisReceiverExpression.convertWithOffsets { startOffset, endOffset ->
+                return thisReceiverExpression.source.convertWithOffsets { startOffset, endOffset ->
                     val thisRef = IrGetValueImpl(startOffset, endOffset, dispatchReceiver.type, dispatchReceiver.symbol)
                     if (calleeReference.contextReceiverNumber != -1) {
                         val constructorForCurrentlyGeneratedDelegatedConstructor =
@@ -623,7 +623,7 @@ class Fir2IrVisitor(
             }
 
             if (receiver != null) {
-                return thisReceiverExpression.convertWithOffsets { startOffset, endOffset ->
+                return thisReceiverExpression.source.convertWithOffsets { startOffset, endOffset ->
                     IrGetValueImpl(startOffset, endOffset, receiver.type, receiver.symbol)
                 }
             }
