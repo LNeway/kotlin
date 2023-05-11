@@ -193,8 +193,7 @@ internal fun CompilerConfiguration.updateWithCompilerOptions(
         validateArguments(it.errors)?.let { throw Exception("Error parsing arguments: $it") } ?: true
     }
 ) {
-    val compilerArguments = K2JVMCompilerArguments()
-    parseCommandLineArguments(compilerOptions, compilerArguments)
+    val compilerArguments = makeScriptCompilerArguments(compilerOptions)
 
     if (!validate(compilerArguments)) return
 
@@ -209,6 +208,17 @@ internal fun CompilerConfiguration.updateWithCompilerOptions(
     configureKlibPaths(compilerArguments)
 }
 
+private fun makeScriptCompilerArguments(compilerOptions: List<String>): K2JVMCompilerArguments {
+
+    val compilerArguments = K2JVMCompilerArguments()
+    val argumentsWithExternalProp =
+        (System.getProperty(SCRIPT_BASE_COMPILER_ARGUMENTS_PROPERTY)?.takeIf { it.isNotBlank() }?.split(' ') ?: emptyList()) +
+                compilerOptions
+
+    parseCommandLineArguments(argumentsWithExternalProp, compilerArguments)
+    return compilerArguments
+}
+
 private fun ScriptCompilationConfiguration.withUpdatesFromCompilerConfiguration(kotlinCompilerConfiguration: CompilerConfiguration) =
     withUpdatedClasspath(kotlinCompilerConfiguration.jvmClasspathRoots)
 
@@ -219,10 +229,8 @@ private fun createInitialCompilerConfiguration(
     reportingState: IgnoredOptionsReportingState
 ): CompilerConfiguration {
 
-    val baseArguments = K2JVMCompilerArguments()
-    parseCommandLineArguments(
-        scriptCompilationConfiguration[ScriptCompilationConfiguration.compilerOptions] ?: emptyList(),
-        baseArguments
+    val baseArguments = makeScriptCompilerArguments(
+        scriptCompilationConfiguration[ScriptCompilationConfiguration.compilerOptions] ?: emptyList()
     )
 
     reportArgumentsIgnoredGenerally(baseArguments, messageCollector, reportingState)
