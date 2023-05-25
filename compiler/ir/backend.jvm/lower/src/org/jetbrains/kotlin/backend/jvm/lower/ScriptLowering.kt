@@ -461,9 +461,9 @@ private class ScriptsToClassesLowering(val context: JvmBackendContext, val inner
                 if (initializer != null) {
                     field.initializer = initializer
                 }
-
-                property.addDefaultGetter(this, context.irBuiltIns)
             }
+
+            property.addDefaultGetter(this, context.irBuiltIns)
         }
     }
 }
