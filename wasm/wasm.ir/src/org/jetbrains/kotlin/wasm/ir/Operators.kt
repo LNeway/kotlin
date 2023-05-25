@@ -385,6 +385,7 @@ enum class WasmOp(
     EXTERN_INTERNALIZE("extern.internalize", 0xfb70), // externref -> anyref
     EXTERN_EXTERNALIZE("extern.externalize", 0xfb71), // anyref -> externref
 
+    // ============================================================
     PSEUDO_COMMENT_PREVIOUS_INSTR("<comment-single>", WASM_OP_PSEUDO_OPCODE),
     PSEUDO_COMMENT_GROUP_START("<comment-group-start>", WASM_OP_PSEUDO_OPCODE),
     PSEUDO_COMMENT_GROUP_END("<comment-group-end>", WASM_OP_PSEUDO_OPCODE),

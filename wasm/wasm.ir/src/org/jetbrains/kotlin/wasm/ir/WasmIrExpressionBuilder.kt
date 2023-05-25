@@ -5,7 +5,7 @@
 
 package org.jetbrains.kotlin.wasm.ir
 
-import org.jetbrains.kotlin.utils.removeLastStartingFrom
+import org.jetbrains.kotlin.utils.addToStdlib.trimToSize
 import org.jetbrains.kotlin.wasm.ir.source.location.SourceLocation
 
 private fun WasmOp.isOutCfgNode() = when (this) {
@@ -32,7 +32,7 @@ class WasmIrExpressionBuilder(
 ) : WasmExpressionBuilder() {
 
     private val lastInstructionIndex: Int
-        get() = expression.indexOfLast { it.operator !== WasmOp.PSEUDO_COMMENT_PREVIOUS_INSTR }
+        get() = expression.indexOfLast { it.operator.opcode != WASM_OP_PSEUDO_OPCODE }
 
     private var eatEverythingUntilLevel: Int? = null
 
@@ -78,7 +78,7 @@ class WasmIrExpressionBuilder(
 
         // droppable instructions + drop/unreachable -> nothing
         if ((op == WasmOp.DROP || op == WasmOp.UNREACHABLE) && lastOperator.pureStacklessInstruction()) {
-            expression.removeLastStartingFrom(lastInstructionId)
+            expression.trimToSize(lastInstructionId)
             return
         }
 
@@ -88,7 +88,7 @@ class WasmIrExpressionBuilder(
             if (localSetNumber != null) {
                 val localGetNumber = (immediates.firstOrNull() as? WasmImmediate.LocalIdx)?.value
                 if (localGetNumber == localSetNumber) {
-                    expression.removeLastStartingFrom(lastInstructionId)
+                    expression.trimToSize(lastInstructionId)
                     addInstruction(WasmOp.LOCAL_TEE, location, immediates)
                     return
                 }
