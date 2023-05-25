@@ -130,6 +130,10 @@ object Main {
             else if (arg.startsWith("-X")) {
                 compilerArguments.add(arg)
             }
+            else if ("-language-version" == arg) {
+                compilerArguments.add(arg)
+                compilerArguments.add(next())
+            }
             else if (arg.startsWith("-")) {
                 throw RunnerException("unknown option: $arg")
             }
