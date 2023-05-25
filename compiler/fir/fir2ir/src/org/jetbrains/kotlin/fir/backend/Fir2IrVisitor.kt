@@ -243,17 +243,25 @@ class Fir2IrVisitor(
             conversionScope.withParent(irScript) {
                 for (statement in script.statements) {
                     val irStatement = if (statement is FirDeclaration) {
-                        if (statement is FirProperty && statement.origin == FirDeclarationOrigin.ScriptCustomization.ResultProperty) {
-                            // processing possible result property
-                            if (statement.returnTypeRef.let { (it.isUnit || it.isNothing || it.isNullableNothing) } == true) {
-                                statement.initializer!!.toIrStatement()
-                            } else {
-                                (statement.accept(this@Fir2IrVisitor, null) as? IrDeclaration)?.also {
-                                    irScript.resultProperty = (it as? IrProperty)?.symbol
+                        when {
+                            statement is FirProperty && statement.origin == FirDeclarationOrigin.ScriptCustomization.ResultProperty -> {
+                                // processing possible result property
+                                if (statement.returnTypeRef.let { (it.isUnit || it.isNothing || it.isNullableNothing) } == true) {
+                                    statement.initializer!!.toIrStatement()
+                                } else {
+                                    (statement.accept(this@Fir2IrVisitor, null) as? IrDeclaration)?.also {
+                                        irScript.resultProperty = (it as? IrProperty)?.symbol
+                                    }
                                 }
                             }
-                        } else {
-                            statement.accept(this@Fir2IrVisitor, null) as? IrDeclaration
+                            statement is FirClass -> {
+                                (statement.accept(this@Fir2IrVisitor, null) as IrClass).also {
+                                    converter.bindFakeOverridesInClass(it)
+                                }
+                            }
+                            else -> {
+                                statement.accept(this@Fir2IrVisitor, null) as? IrDeclaration
+                            }
                         }
                     } else {
                         statement.toIrStatement()
