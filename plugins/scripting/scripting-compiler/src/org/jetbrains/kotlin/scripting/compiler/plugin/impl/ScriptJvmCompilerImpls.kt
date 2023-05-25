@@ -25,6 +25,7 @@ import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.JVMConfigurationKeys
 import org.jetbrains.kotlin.config.languageVersionSettings
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporterFactory
+import org.jetbrains.kotlin.fir.declarations.FirFile
 import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrar
 import org.jetbrains.kotlin.fir.pipeline.*
 import org.jetbrains.kotlin.metadata.jvm.deserialization.JvmProtoBufUtil
@@ -398,7 +399,23 @@ private fun doCompileWithK2(
                 }.orEmpty()
             }
 
-            topologicalSort(rawFir) { rawFirDeps[this] ?: emptyList() }.reversed()
+            class CycleDetected(val node: FirFile) : Throwable()
+
+            try {
+                topologicalSort(
+                    rawFir, reportCycle = { throw CycleDetected(it) }
+                ) {
+                    rawFirDeps[this] ?: emptyList()
+                }.reversed()
+            } catch (e: CycleDetected) {
+                return ResultWithDiagnostics.Failure(
+                    ScriptDiagnostic(
+                        ScriptDiagnostic.unspecifiedError,
+                        "Unable to handle recursive script dependencies, cycle detected on file ${e.node.name}",
+                        sourcePath = e.node.sourceFile?.path
+                    )
+                )
+            }
         }
 
     val (scopeSession, fir) = session.runResolution(orderedRawFir)
