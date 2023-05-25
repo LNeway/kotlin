@@ -254,6 +254,11 @@ class Fir2IrVisitor(
                                     }
                                 }
                             }
+                            statement is FirProperty && statement.source?.kind == KtFakeSourceElementKind.DestructuringDeclarationContainerVariable -> {
+                                declarationStorage.createIrVariable(statement, conversionScope.parentFromStack()).also {
+                                    it.initializer = statement.initializer?.toIrStatement() as? IrExpression
+                                }
+                            }
                             statement is FirClass -> {
                                 (statement.accept(this@Fir2IrVisitor, null) as IrClass).also {
                                     converter.bindFakeOverridesInClass(it)

@@ -124,18 +124,19 @@ internal fun generateDestructuringBlock(
     multiDeclaration: KtDestructuringDeclaration,
     container: FirVariable,
     tmpVariable: Boolean,
+    localEntries: Boolean,
     extractAnnotationsTo: KtAnnotated.(FirAnnotationContainerBuilder) -> Unit,
     toFirOrImplicitTypeRef: KtTypeReference?.() -> FirTypeRef,
 ): FirBlock {
     return buildBlock {
-        source = multiDeclaration.toKtPsiSourceElement()
+        source = multiDeclaration.toKtPsiSourceElement(KtFakeSourceElementKind.DestructuringDeclarationBlock)
         if (tmpVariable) {
             statements += container
         }
         val isVar = multiDeclaration.isVar
         for ((index, entry) in multiDeclaration.entries.withIndex()) {
             if (entry.nameIdentifier?.text == "_") continue
-            val entrySource = entry.toKtPsiSourceElement()
+            val entrySource = entry.toKtPsiSourceElement(KtFakeSourceElementKind.DestructuringDeclarationEntry)
             val name = entry.nameAsSafeName
             statements += buildProperty {
                 source = entrySource
@@ -150,7 +151,7 @@ internal fun generateDestructuringBlock(
                     componentIndex = index + 1
                 }
                 this.isVar = isVar
-                isLocal = true
+                isLocal = localEntries
                 status = FirDeclarationStatusImpl(Visibilities.Local, Modality.FINAL)
                 symbol = FirPropertySymbol(name)
                 entry.extractAnnotationsTo(this)

@@ -275,6 +275,11 @@ sealed class KtFakeSourceElementKind(final override val shouldSkipErrorTypeRepor
 
     // Scripts get implicit imports from their configurations
     object ImplicitImport : KtFakeSourceElementKind()
+
+    // Destructuring declaration elements
+    object DestructuringDeclarationBlock : KtFakeSourceElementKind()
+    object DestructuringDeclarationContainerVariable : KtFakeSourceElementKind()
+    object DestructuringDeclarationEntry : KtFakeSourceElementKind()
 }
 
 sealed class AbstractKtSourceElement {
