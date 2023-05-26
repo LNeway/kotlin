@@ -70,7 +70,7 @@ class Fir2IrVisitor(
     private val operatorGenerator = OperatorExpressionGenerator(components, this, conversionScope)
 
     private var _annotationMode: Boolean = false
-    public val annotationMode: Boolean
+    val annotationMode: Boolean
         get() = _annotationMode
 
     private fun FirTypeRef.toIrType(): IrType = with(typeConverter) { toIrType() }
@@ -659,7 +659,7 @@ class Fir2IrVisitor(
                 }
             }
         } else if (boundSymbol is FirScriptSymbol && calleeReference.contextReceiverNumber >= 0) {
-            val firScript = boundSymbol.fir as FirScript
+            val firScript = boundSymbol.fir
             val irScript = declarationStorage.getCachedIrScript(firScript) ?: error("IrScript for ${firScript.name} not found")
             val receiverParameter = irScript.implicitReceiversParameters.find { it.index == calleeReference.contextReceiverNumber }
             if (receiverParameter != null) {
