@@ -40,6 +40,7 @@ object O5 {
 }
 
 fun box(): String {
+    if (log != "") return "Fail: something was initialized before any object was used"
     O1
     if (log != "O1 init") return "Fail: O1 didn't initialized lazy"
     O2

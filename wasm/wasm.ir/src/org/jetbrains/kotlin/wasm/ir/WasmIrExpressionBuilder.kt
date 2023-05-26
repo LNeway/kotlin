@@ -31,14 +31,16 @@ class WasmIrExpressionBuilder(
     val expression: MutableList<WasmInstr>
 ) : WasmExpressionBuilder() {
 
-    private val lastInstructionIndex: Int
-        get() = expression.indexOfLast { it.operator.opcode != WASM_OP_PSEUDO_OPCODE }
-
     private var eatEverythingUntilLevel: Int? = null
+    private var lastInstructionIndex: Int = expression.indexOfLast { !it.operator.isPseudoInstruction }
 
     private fun addInstruction(op: WasmOp, location: SourceLocation, immediates: Array<out WasmImmediate>) {
         val newInstruction = WasmInstrWithLocation(op, immediates.toList(), location)
         expression.add(newInstruction)
+
+        if (!newInstruction.operator.isPseudoInstruction) {
+            lastInstructionIndex += 1
+        }
     }
 
     private fun getCurrentEatLevel(op: WasmOp): Int? {
@@ -66,19 +68,17 @@ class WasmIrExpressionBuilder(
             }
         }
 
-        val lastInstructionId = lastInstructionIndex
-
-        if (lastInstructionId == -1) {
+        if (lastInstructionIndex == -1) {
             addInstruction(op, location, immediates)
             return
         }
 
-        val lastInstruction = expression[lastInstructionId]
+        val lastInstruction = expression[lastInstructionIndex]
         val lastOperator = lastInstruction.operator
 
         // droppable instructions + drop/unreachable -> nothing
         if ((op == WasmOp.DROP || op == WasmOp.UNREACHABLE) && lastOperator.pureStacklessInstruction()) {
-            expression.trimToSize(lastInstructionId)
+            trimInstructionsUntil(lastInstructionIndex)
             return
         }
 
@@ -88,7 +88,7 @@ class WasmIrExpressionBuilder(
             if (localSetNumber != null) {
                 val localGetNumber = (immediates.firstOrNull() as? WasmImmediate.LocalIdx)?.value
                 if (localGetNumber == localSetNumber) {
-                    expression.trimToSize(lastInstructionId)
+                    trimInstructionsUntil(lastInstructionIndex)
                     addInstruction(WasmOp.LOCAL_TEE, location, immediates)
                     return
                 }
@@ -98,11 +98,19 @@ class WasmIrExpressionBuilder(
         addInstruction(op, location, immediates)
     }
 
+    private fun trimInstructionsUntil(index: Int) {
+        expression.trimToSize(index)
+        lastInstructionIndex = index - 1
+    }
+
     override var numberOfNestedBlocks: Int = 0
         set(value) {
             assert(value >= 0) { "end without matching block" }
             field = value
         }
+
+    private val WasmOp.isPseudoInstruction: Boolean
+        get() = opcode == WASM_OP_PSEUDO_OPCODE
 }
 
 inline fun buildWasmExpression(body: WasmExpressionBuilder.() -> Unit): MutableList<WasmInstr> {
