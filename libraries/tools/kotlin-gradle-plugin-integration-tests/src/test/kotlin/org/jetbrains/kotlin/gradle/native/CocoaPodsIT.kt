@@ -6,7 +6,6 @@
 package org.jetbrains.kotlin.gradle.native
 
 import org.jetbrains.kotlin.gradle.*
-import org.jetbrains.kotlin.gradle.native.CocoaPodsBaseIT.Companion.validFrameworkName
 import org.jetbrains.kotlin.gradle.plugin.cocoapods.KotlinCocoapodsPlugin.Companion.DUMMY_FRAMEWORK_TASK_NAME
 import org.jetbrains.kotlin.gradle.plugin.cocoapods.KotlinCocoapodsPlugin.Companion.POD_BUILD_TASK_NAME
 import org.jetbrains.kotlin.gradle.plugin.cocoapods.KotlinCocoapodsPlugin.Companion.POD_GEN_TASK_NAME
@@ -15,7 +14,7 @@ import org.jetbrains.kotlin.gradle.plugin.cocoapods.KotlinCocoapodsPlugin.Compan
 import org.jetbrains.kotlin.gradle.plugin.cocoapods.KotlinCocoapodsPlugin.Companion.POD_SETUP_BUILD_TASK_NAME
 import org.jetbrains.kotlin.gradle.plugin.cocoapods.KotlinCocoapodsPlugin.Companion.POD_SPEC_TASK_NAME
 import org.jetbrains.kotlin.gradle.testbase.TestVersions
-import org.jetbrains.kotlin.gradle.transformProjectWithPluginsDsl
+import org.jetbrains.kotlin.gradle.testbase.normalizeCocoapadsFrameworkName
 import org.jetbrains.kotlin.gradle.util.createTempDir
 import org.jetbrains.kotlin.gradle.util.modify
 import org.jetbrains.kotlin.gradle.util.runProcess
@@ -1521,7 +1520,7 @@ class CocoaPodsIT : BaseGradleIT() {
         if (iosAppLocation != null) {
             val iosAppDir = projectDir.resolve(iosAppLocation)
             iosAppDir.resolve("ios-app/ViewController.swift").modify {
-                it.replace("import ${subproject.validFrameworkName}", "import $frameworkName")
+                it.replace("import ${subproject.normalizeCocoapadsFrameworkName}", "import $frameworkName")
             }
         }
     }

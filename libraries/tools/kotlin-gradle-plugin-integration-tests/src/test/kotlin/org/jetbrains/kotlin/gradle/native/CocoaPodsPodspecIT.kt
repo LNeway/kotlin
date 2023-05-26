@@ -15,7 +15,7 @@ import kotlin.test.assertEquals
 @OsCondition(supportedOn = [OS.MAC], enabledOnCI = [OS.MAC])
 @DisplayName("K/N tests cocoapods")
 @NativeGradlePluginTests
-class CocoaPodsPodspecIT : CocoaPodsBaseIT() {
+class CocoaPodsPodspecIT : KGPBaseTest() {
 
     private val cocoapodsSingleKtPod = "native-cocoapods-single"
     private val cocoapodsMultipleKtPods = "native-cocoapods-multiple"
@@ -83,7 +83,7 @@ class CocoaPodsPodspecIT : CocoaPodsBaseIT() {
                     assertTasksExecuted(":$subproject:podspec")
 
                     // Check that the podspec file is correctly generated.
-                    val podspecFileName = "$subproject/${subproject.validFrameworkName}.podspec"
+                    val podspecFileName = "$subproject/${subproject.normalizeCocoapadsFrameworkName}.podspec"
 
                     assertFileInProjectExists(podspecFileName)
                     val actualPodspecContentWithoutBlankLines = projectPath.resolve(podspecFileName).readText()
