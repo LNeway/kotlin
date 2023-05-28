@@ -1,6 +1,5 @@
 // TARGET_BACKEND: JVM_IR
-// TARGET_BACKEND: NATIVE
-// TARGET_BACKEND: JS_IR
+// TODO enable for JS, Native when apply const lowering in corresponding backends
 // WITH_STDLIB
 
 object Test {
