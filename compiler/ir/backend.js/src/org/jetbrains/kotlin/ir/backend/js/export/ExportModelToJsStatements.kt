@@ -257,7 +257,7 @@ class ExportModelToJsStatements(
     private fun ExportedClass.getNameAndInitialization(): Pair<JsName, JsStatement?> {
         return when (val classRef = ir.getClassRef(staticContext)) {
             !is JsNameRef -> {
-                val stableName = JsName(name, this is ExportedObject)
+                val stableName = JsName(name, true)
                 stableName to JsVars(JsVars.JsVar(stableName, classRef))
             }
             else -> classRef.name!! to null

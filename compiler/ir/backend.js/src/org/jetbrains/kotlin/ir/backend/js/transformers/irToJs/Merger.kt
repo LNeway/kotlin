@@ -148,7 +148,6 @@ class Merger(
                 ?.asSequence()
                 ?.flatMap { (it.subject as JsExport.Subject.Elements).elements }
                 ?.distinctBy { it.alias?.ident ?: it.name.ident }
-                ?.map { if (it.name.ident == it.alias?.ident) JsExport.Element(it.name, null) else it }
                 ?.toList()
 
             val oneLargeExportStatement = exportedElements?.let { JsExport(JsExport.Subject.Elements(it)) }

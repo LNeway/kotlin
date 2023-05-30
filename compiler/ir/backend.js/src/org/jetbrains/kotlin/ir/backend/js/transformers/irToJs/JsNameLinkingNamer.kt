@@ -83,7 +83,7 @@ class JsNameLinkingNamer(
         val name = JsName(sanitizeName(nameString), true)
 
         if (isEsModules) {
-            imports[this] = JsImport(jsModule, JsImport.Target.All(name.makeRef()))
+            imports[this] = JsImport(jsModule, JsImport.Target.Default(name.makeRef()))
         } else {
             importedModules += JsImportedModule(jsModule, name, name.makeRef())
         }
