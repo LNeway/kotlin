@@ -35,12 +35,8 @@ class WasmIrExpressionBuilder(
     private var lastInstructionIndex: Int = expression.indexOfLast { !it.operator.isPseudoInstruction }
 
     private fun addInstruction(op: WasmOp, location: SourceLocation, immediates: Array<out WasmImmediate>) {
-        val newInstruction = WasmInstrWithLocation(op, immediates.toList(), location)
-        expression.add(newInstruction)
-
-        if (!newInstruction.operator.isPseudoInstruction) {
-            lastInstructionIndex += 1
-        }
+        expression += WasmInstrWithLocation(op, immediates.toList(), location)
+        if (!op.isPseudoInstruction) lastInstructionIndex = expression.lastIndex
     }
 
     private fun getCurrentEatLevel(op: WasmOp): Int? {
