@@ -550,6 +550,9 @@ interface TypeSystemContext : TypeSystemOptimizationContext {
     fun typeSubstitutorByTypeConstructor(map: Map<TypeConstructorMarker, KotlinTypeMarker>): TypeSubstitutorMarker
     fun createEmptySubstitutor(): TypeSubstitutorMarker
 
+    /**
+     * @returns substituted type or [type] if there were no substitution
+     */
     fun TypeSubstitutorMarker.safeSubstitute(type: KotlinTypeMarker): KotlinTypeMarker
 }
 
