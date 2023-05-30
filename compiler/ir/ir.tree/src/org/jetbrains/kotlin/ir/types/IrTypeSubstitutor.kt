@@ -37,7 +37,7 @@ abstract class BaseIrTypeSubstitutor(private val irBuiltIns: IrBuiltIns) : Abstr
         val substitutedTypeParameter = irType.typeParameterConstructor()?.let {
             when (val typeArgument = getSubstitutionArgument(it)) {
                 is IrStarProjection -> irBuiltIns.anyNType // TODO upper bound for T
-                is IrTypeProjection -> typeArgument.type.makeNullableIfNeeded(irType)
+                is IrTypeProjection -> typeArgument.type.mergeNullability(irType)
             }
         }
         if (substitutedTypeParameter != null) {
@@ -60,10 +60,6 @@ abstract class BaseIrTypeSubstitutor(private val irBuiltIns: IrBuiltIns) : Abstr
             is IrStarProjection -> typeArgument
             is IrTypeProjection -> makeTypeProjection(substituteType(typeArgument.type), typeArgument.variance)
         }
-    }
-
-    private fun IrType.makeNullableIfNeeded(original: IrType): IrType {
-        return if (original.isMarkedNullable()) makeNullable() else this
     }
 }
 
