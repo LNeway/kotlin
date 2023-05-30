@@ -46,7 +46,7 @@ fun IrType.isNullable(): Boolean =
                 SimpleTypeNullability.DEFINITELY_NOT_NULL -> false
             }
             is IrScriptSymbol -> nullability == SimpleTypeNullability.MARKED_NULLABLE
-            is IrTypeAliasSymbol -> nullability == SimpleTypeNullability.MARKED_NULLABLE
+            is IrTypeAliasSymbol -> nullability == SimpleTypeNullability.MARKED_NULLABLE || classifier.owner.expandedType.isNullable()
         }
         is IrDynamicType -> true
         is IrErrorType -> this.isMarkedNullable
