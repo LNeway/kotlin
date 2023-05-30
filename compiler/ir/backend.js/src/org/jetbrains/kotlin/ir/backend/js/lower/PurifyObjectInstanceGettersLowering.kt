@@ -82,8 +82,15 @@ class PurifyObjectInstanceGettersLowering(val context: JsCommonBackendContext) :
     }
 
     private fun IrClass.isPureObject(): Boolean {
-        return context.mapping.objectsWithPureInitialization.getOrPut(this) {
-            superClass == null && primaryConstructor?.body?.statements?.all { it.isPureStatementForObjectInitialization(this) } != false
+        with(context.mapping.objectsWithPureInitialization) {
+            var hasPureInitializer = get(this@isPureObject)
+            if (hasPureInitializer != null) return hasPureInitializer
+            // We need it to escape StackOverflow
+            set(this@isPureObject, true)
+            hasPureInitializer =
+                superClass == null && primaryConstructor?.body?.statements?.all { it.isPureStatementForObjectInitialization(this@isPureObject) } != false
+            set(this@isPureObject, hasPureInitializer)
+            return hasPureInitializer
         }
     }
 
