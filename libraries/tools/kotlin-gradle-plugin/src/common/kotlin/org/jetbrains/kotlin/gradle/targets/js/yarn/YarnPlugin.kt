@@ -39,6 +39,8 @@ open class YarnPlugin : Plugin<Project> {
         val nodeJs = this.kotlinNodeJsExtension
         val nodeJsTaskProviders = this.kotlinNodeJsExtension
 
+        yarnRootExtension.platform.set(nodeJs.platform)
+
         val setupTask = registerTask<YarnSetupTask>(YarnSetupTask.NAME) {
             it.dependsOn(nodeJsTaskProviders.nodeJsSetupTaskProvider)
 

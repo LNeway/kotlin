@@ -23,11 +23,6 @@ import org.jetbrains.kotlin.gradle.tasks.CleanDataTask
 import org.jetbrains.kotlin.gradle.tasks.registerTask
 import org.jetbrains.kotlin.gradle.tasks.withType
 import org.jetbrains.kotlin.gradle.utils.*
-import org.jetbrains.kotlin.gradle.utils.SingleActionPerProject
-import org.jetbrains.kotlin.gradle.utils.castIsolatedKotlinPluginClassLoaderAware
-import org.jetbrains.kotlin.gradle.utils.doNotTrackStateCompat
-import org.jetbrains.kotlin.gradle.utils.markResolvable
-import org.jetbrains.kotlin.gradle.utils.providerWithLazyConvention
 
 open class NodeJsRootPlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -44,6 +39,8 @@ open class NodeJsRootPlugin : Plugin<Project> {
             NodeJsRootExtension::class.java,
             project
         )
+
+        addPlatform(project, nodeJs)
 
         val setupTask = project.registerTask<NodeJsSetupTask>(NodeJsSetupTask.NAME) {
             it.group = TASKS_GROUP_NAME
@@ -129,6 +126,21 @@ open class NodeJsRootPlugin : Plugin<Project> {
             it.group = TASKS_GROUP_NAME
             it.description = "Clean unused local node version"
         }
+    }
+
+    // from https://github.com/node-gradle/gradle-node-plugin
+    private fun addPlatform(project: Project, extension: NodeJsRootExtension) {
+        val uname = {
+            project
+                .providers
+                .of(UnameValueSource::class.java) {}
+                .get()
+        }
+
+        val name = System.getProperty("os.name")
+        val arch = System.getProperty("os.arch")
+        val platform = parsePlatform(name, arch, uname)
+        extension.platform.set(platform)
     }
 
     companion object {
