@@ -82,15 +82,8 @@ class PurifyObjectInstanceGettersLowering(val context: JsCommonBackendContext) :
     }
 
     private fun IrClass.isPureObject(): Boolean {
-        with(context.mapping.objectsWithPureInitialization) {
-            var hasPureInitializer = get(this@isPureObject)
-            if (hasPureInitializer != null) return hasPureInitializer
-            // We need it to escape StackOverflow
-            set(this@isPureObject, true)
-            hasPureInitializer =
-                superClass == null && primaryConstructor?.body?.statements?.all { it.isPureStatementForObjectInitialization(this@isPureObject) } != false
-            set(this@isPureObject, hasPureInitializer)
-            return hasPureInitializer
+        return context.mapping.objectsWithPureInitialization.getOrPut(this) {
+            superClass == null && primaryConstructor?.body?.statements?.all { it.isPureStatementForObjectInitialization(this@isPureObject) } != false
         }
     }
 
@@ -103,7 +96,6 @@ class PurifyObjectInstanceGettersLowering(val context: JsCommonBackendContext) :
                 (this is IrSetField && receiver.isThisGetter(owner) && value.isPureStatementForObjectInitialization(owner)) ||
                 (this is IrSetValue && symbol.owner.isLocal && value.isPureStatementForObjectInitialization(owner)) ||
                 (this is IrBlock && statements.all { it.isPureStatementForObjectInitialization(owner) }) ||
-                (this is IrCall && symbol.owner.isObjectInstanceGetter() && symbol.owner.returnType.classOrNull?.owner?.isPureObject() == true) ||
                 (this is IrGetField && receiver?.isPureStatementForObjectInitialization(owner) != false)
     }
 
