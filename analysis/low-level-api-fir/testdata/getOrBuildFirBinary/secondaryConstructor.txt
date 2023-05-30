@@ -1,4 +1,6 @@
 KT element: KtSecondaryConstructor
+KT element text:
+public constructor(p: kotlin.String) { /* compiled code */ }
 FIR element: FirConstructorImpl
 FIR source kind: KtRealSourceElementKind
 

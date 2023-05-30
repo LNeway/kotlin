@@ -38,8 +38,8 @@ abstract class AbstractGetOrBuildFirTest : AbstractLowLevelApiSingleFileTest() {
     }
 }
 
-fun renderActualFir(fir: FirElement?, ktElement: KtElement): String {
-    return """|KT element: ${ktElement::class.simpleName}
+fun renderActualFir(fir: FirElement?, ktElement: KtElement, renderKtText: Boolean = false): String {
+    return """|KT element: ${ktElement::class.simpleName}${if (renderKtText) "\nKT element text:\n" + ktElement.text else ""}
                |FIR element: ${fir?.let { it::class.simpleName }}
                |FIR source kind: ${fir?.source?.kind?.let { it::class.simpleName }}
                |

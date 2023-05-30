@@ -1,4 +1,6 @@
 KT element: KtEnumEntry
+KT element text:
+Baz;
 FIR element: FirEnumEntryImpl
 FIR source kind: KtRealSourceElementKind
 

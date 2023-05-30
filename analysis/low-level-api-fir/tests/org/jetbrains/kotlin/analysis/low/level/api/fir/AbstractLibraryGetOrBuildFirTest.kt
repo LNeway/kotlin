@@ -38,7 +38,7 @@ abstract class AbstractLibraryGetOrBuildFirTest : AbstractLowLevelApiSingleFileT
         val symbolProvider = resolveSession.getSessionFor(module).symbolProvider
         val fir = FirDeclarationForCompiledElementSearcher(symbolProvider).findNonLocalDeclaration(declaration)
 
-        testServices.assertions.assertEqualsToTestDataFileSibling(renderActualFir(fir, declaration))
+        testServices.assertions.assertEqualsToTestDataFileSibling(renderActualFir(fir, declaration, true))
     }
 
     private fun getElementToSearch(ktFile: KtFile, moduleStructure: TestModuleStructure): KtDeclaration {

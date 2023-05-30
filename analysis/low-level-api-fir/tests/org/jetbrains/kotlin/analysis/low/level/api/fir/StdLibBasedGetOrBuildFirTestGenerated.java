@@ -31,6 +31,12 @@ public class StdLibBasedGetOrBuildFirTestGenerated extends AbstractStdLibBasedGe
     }
 
     @Test
+    @TestMetadata("flattenArray.kt")
+    public void testFlattenArray() throws Exception {
+        runTest("analysis/low-level-api-fir/testdata/getOrBuildFirForStdLib/flattenArray.kt");
+    }
+
+    @Test
     @TestMetadata("fromBits.kt")
     public void testFromBits() throws Exception {
         runTest("analysis/low-level-api-fir/testdata/getOrBuildFirForStdLib/fromBits.kt");

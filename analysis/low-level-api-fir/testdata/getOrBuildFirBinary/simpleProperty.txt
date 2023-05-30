@@ -1,4 +1,6 @@
 KT element: KtProperty
+KT element text:
+public final val p: kotlin.String /* compiled code */
 FIR element: FirPropertyImpl
 FIR source kind: KtRealSourceElementKind
 

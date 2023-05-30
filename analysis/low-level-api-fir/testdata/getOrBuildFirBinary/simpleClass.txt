@@ -1,4 +1,8 @@
 KT element: KtClass
+KT element text:
+public final class FooBar public constructor() {
+    public final fun doSmth(): kotlin.Unit { /* compiled code */ }
+}
 FIR element: FirRegularClassImpl
 FIR source kind: KtRealSourceElementKind
 
