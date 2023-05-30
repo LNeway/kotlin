@@ -20,7 +20,7 @@ fun TestProject.useCustomFrameworkName(
     // Change the name at the Gradle side.
     subProject(subprojectName)
         .buildGradleKts
-        .encloseWithFrameworkBlock("baseName = \"$frameworkName\"")
+        .addFrameworkBlock("baseName = \"$frameworkName\"")
 
     // Change swift sources import if needed.
     if (iosAppLocation != null) {
@@ -34,10 +34,10 @@ fun TestProject.useCustomFrameworkName(
     }
 }
 
-private fun Path.encloseWithKotlinBlock(str: String) = appendLine(str.wrapIntoBlock("kotlin"))
+private fun Path.addKotlinBlock(str: String) = appendLine(str.wrapIntoBlock("kotlin"))
 
-private fun Path.encloseWithToCocoapodsBlock(str: String) = encloseWithKotlinBlock(str.wrapIntoBlock("cocoapods"))
+private fun Path.addCocoapodsBlock(str: String) = addKotlinBlock(str.wrapIntoBlock("cocoapods"))
 
-private fun Path.encloseWithFrameworkBlock(str: String) = encloseWithToCocoapodsBlock(str.wrapIntoBlock("framework"))
+private fun Path.addFrameworkBlock(str: String) = addCocoapodsBlock(str.wrapIntoBlock("framework"))
 
 private fun Path.appendLine(s: String) = appendText("\n$s")
