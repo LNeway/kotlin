@@ -21,6 +21,20 @@ import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.resolve.calls.mpp.AbstractExpectActualCompatibilityChecker
 import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualCompatibility
 
+/**
+ * This class is used to collect mapping between all expect and actuals declarations, which are declared in passed module fragments
+ * It does not process any declarations which may appear after actualization of supertypes (like fake-overrides in classes with
+ *   expect supertypes)
+ *
+ * The main method of this class, `collect` returns a pair of two values:
+ * - `expectToActualMap` is the main storage of all mapped declarations. Key is symbol of expect declaration and the value is symbol of
+ *     corresponding actual declaration
+ * - `classActualizationInfo` is a storage which keeps information about types (class) actualization, which can be used later for type
+ *     refinement if needed
+ *
+ * If some declarations didn't match (or there was missing/actual) then corresponding declarations won't be stored in `expectToActualMap`.
+ *   Instead of that an error will be reported to `diagnosticReporter`
+ */
 internal class ExpectActualCollector(
     private val mainFragment: IrModuleFragment,
     private val dependentFragments: List<IrModuleFragment>,

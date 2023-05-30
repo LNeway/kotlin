@@ -367,7 +367,7 @@ abstract class IrExpectActualMatchingContext(
 
     override fun RegularClassSymbolMarker.isNotSamInterface(): Boolean {
         // TODO: is it correct for java classes?
-        return asIr().isFun
+        return !asIr().isFun
     }
 
     override fun CallableSymbolMarker.shouldSkipMatching(containingExpectClass: RegularClassSymbolMarker): Boolean {
