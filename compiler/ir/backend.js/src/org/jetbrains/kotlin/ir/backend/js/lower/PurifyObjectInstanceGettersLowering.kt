@@ -88,15 +88,19 @@ class PurifyObjectInstanceGettersLowering(val context: JsCommonBackendContext) :
     }
 
     private fun IrStatement.isPureStatementForObjectInitialization(owner: IrClass): Boolean {
-        return (this is IrDelegatingConstructorCall && symbol.owner.parent == context.irBuiltIns.anyClass.owner) ||
-                (this is IrExpression && isPure(anyVariable = true, context = context)) ||
-                (this is IrComposite && statements.all { it.isPureStatementForObjectInitialization(owner) }) ||
-                (this is IrVariable && initializer?.isPureStatementForObjectInitialization(owner) != false) ||
-                (this is IrSetField && symbol.owner.isObjectInstanceField()) ||
-                (this is IrSetField && receiver.isThisGetter(owner) && value.isPureStatementForObjectInitialization(owner)) ||
-                (this is IrSetValue && symbol.owner.isLocal && value.isPureStatementForObjectInitialization(owner)) ||
-                (this is IrBlock && statements.all { it.isPureStatementForObjectInitialization(owner) })
-    }
+        return (
+                // Only objects which don't have a class parent
+                (this is IrDelegatingConstructorCall && symbol.owner.parent == context.irBuiltIns.anyClass.owner) ||
+                        (this is IrExpression && isPure(anyVariable = true, checkFields = false, context = context)) ||
+                        (this is IrContainerExpression && statements.all { it.isPureStatementForObjectInitialization(owner) }) ||
+                        (this is IrVariable && initializer?.isPureStatementForObjectInitialization(owner) != false) ||
+                        // Only fields of the objects are safe to not save an intermediate state of another class/object/global
+                        (this is IrGetField && receiver?.isPureStatementForObjectInitialization(owner) == true) ||
+                        (this is IrSetField && receiver?.isPureStatementForObjectInitialization(owner) == true && value.isPureStatementForObjectInitialization(owner)) ||
+                        // Only current object could be initialized inside the object constructor, so we need to ignore it as an effect
+                        (this is IrSetField && symbol.owner.isObjectInstanceField()) ||
+                        (this is IrSetValue && symbol.owner.isLocal && value.isPureStatementForObjectInitialization(owner))
+                )
 
-    private fun IrExpression?.isThisGetter(owner: IrClass): Boolean = this is IrGetValue && symbol == owner.thisReceiver?.symbol
+    }
 }
