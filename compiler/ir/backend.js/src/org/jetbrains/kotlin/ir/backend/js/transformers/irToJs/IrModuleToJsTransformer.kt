@@ -257,47 +257,57 @@ class IrModuleToJsTransformer(
     }
 
     private fun generateJsIrProgramPerFile(exportData: List<IrAndExportedDeclarations>, mode: TranslationMode): JsIrProgram {
-        return JsIrProgram(
-            exportData
-                .flatMap { module ->
-                    val modulesPerFile = module.files
-                        .flatMap {
-                            if (it.file.couldBeSkipped()) {
-                                emptyList()
-                            } else {
-                                val (programFragment, exportProgramFragment) = generateProgramFragment(it, mode)
-                                listOfNotNull(
-                                    JsIrModule(
-                                        moduleFragmentToNameMapper.getSafeNameFor(it.file),
-                                        moduleFragmentToNameMapper.getExternalNameFor(it.file, mode.granularity),
-                                        listOf(programFragment),
-                                    ),
-                                    runIf(it.exports.isNotEmpty()) {
-                                        JsIrModule(
-                                            moduleFragmentToNameMapper.getSafeNameExporterFor(it.file),
-                                            moduleFragmentToNameMapper.getExternalNameForExporterFile(it.file, mode.granularity),
-                                            listOf(exportProgramFragment),
-                                            module.fragment.safeName
-                                        )
-                                    }
-                                )
-                            }
-                        }
+        val modulesPerFile = buildList {
+            for (module in exportData) {
+                var hasFileWithJsExportedDeclaration = false
 
-                    val reexportModule = if (modulesPerFile.isEmpty()) {
-                        emptyList()
-                    } else {
-                        listOf(
-                            JsIrModule(
-                                module.fragment.safeName,
-                                moduleFragmentToNameMapper.getExternalNameFor(module.fragment),
-                                listOf(JsIrProgramFragment("<proxy-file>"))
-                            )
-                        )
+                for (fileExports in module.files) {
+                    if (fileExports.file.couldBeSkipped()) continue
+                    val (programFragment, exportProgramFragment) = generateProgramFragment(fileExports, mode)
+
+                    add(fileExports.toJsIrModule(mode, programFragment))
+
+                    if (fileExports.exports.isNotEmpty()) {
+                        add(fileExports.toJsIrModuleForExport(module, mode, exportProgramFragment))
+                        hasFileWithJsExportedDeclaration = true
                     }
-
-                    modulesPerFile + reexportModule
                 }
+
+                if (hasFileWithJsExportedDeclaration) {
+                    add(module.toJsIrProxyModule())
+                }
+            }
+        }
+
+        return JsIrProgram(modulesPerFile)
+    }
+
+    private fun IrFileExports.toJsIrModule(mode: TranslationMode, programFragment: JsIrProgramFragment): JsIrModule {
+        return JsIrModule(
+            moduleFragmentToNameMapper.getSafeNameFor(file),
+            moduleFragmentToNameMapper.getExternalNameFor(file, mode.granularity),
+            listOf(programFragment),
+        )
+    }
+
+    private fun IrFileExports.toJsIrModuleForExport(
+        module: IrAndExportedDeclarations,
+        mode: TranslationMode,
+        programFragment: JsIrProgramFragment
+    ): JsIrModule {
+        return JsIrModule(
+            moduleFragmentToNameMapper.getSafeNameExporterFor(file),
+            moduleFragmentToNameMapper.getExternalNameForExporterFile(file, mode.granularity),
+            listOf(programFragment),
+            module.fragment.safeName
+        )
+    }
+
+    private fun IrAndExportedDeclarations.toJsIrProxyModule(): JsIrModule {
+        return JsIrModule(
+            fragment.safeName,
+            moduleFragmentToNameMapper.getExternalNameFor(fragment),
+            listOf(JsIrProgramFragment("<proxy-file>"))
         )
     }
 

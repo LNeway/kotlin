@@ -202,14 +202,11 @@ private class JsIrModuleCrossModuleReferenceBuilder(
     private fun relativeRequirePath(moduleHeader: JsIrModuleHeader): String? {
         if (!this.relativeRequirePath) return null
 
-        val moduleHeaderExternalName = moduleHeader.externalModuleName
-        val parentMain = File(header.externalModuleName).parentFile ?: return "./$moduleHeaderExternalName"
+        val parentMain = File(header.externalModuleName).parentFile ?: return "./${moduleHeader.externalModuleName}"
 
         val relativePath = File(moduleHeader.externalModuleName)
             .toRelativeString(parentMain)
             .replace(File.separator, "/")
-            .takeIf { it.isNotEmpty() } ?: return "../$moduleHeaderExternalName"
-
 
         return relativePath.takeIf { it.startsWith("../") } ?: "./$relativePath"
     }

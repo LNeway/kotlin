@@ -12,7 +12,6 @@ import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.util.isInterface
 import org.jetbrains.kotlin.js.backend.ast.JsFunction
-import org.jetbrains.kotlin.utils.addToStdlib.runIf
 
 @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
 class IrFunctionToJsTransformer : BaseIrElementToJsNodeTransformer<JsFunction, JsGenerationContext> {

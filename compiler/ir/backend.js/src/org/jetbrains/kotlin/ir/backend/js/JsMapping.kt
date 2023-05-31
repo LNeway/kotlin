@@ -41,7 +41,6 @@ class JsMapping : DefaultMapping() {
 
     val inlineFunctionsBeforeInlining = DefaultDelegateFactory.newDeclarationToDeclarationMapping<IrFunction, IrFunction>()
 
-
     // Wasm mappings
     val wasmJsInteropFunctionToWrapper =
         DefaultDelegateFactory.newDeclarationToDeclarationMapping<IrSimpleFunction, IrSimpleFunction>()

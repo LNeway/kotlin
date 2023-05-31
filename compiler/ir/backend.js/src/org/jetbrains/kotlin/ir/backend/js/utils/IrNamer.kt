@@ -78,6 +78,7 @@ abstract class IrNamerBase : IrNamer {
 
     override fun getAssociatedObjectKey(irClass: IrClass): Int? {
         if (irClass.isAssociatedObjectAnnotatedAnnotation) {
+
             return associatedObjectKeyMap.getOrPut(irClass) { associatedObjectKeyMap.size }
         }
         return null

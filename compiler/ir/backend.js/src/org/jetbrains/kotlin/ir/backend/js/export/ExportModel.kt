@@ -7,7 +7,6 @@ package org.jetbrains.kotlin.ir.backend.js.export
 
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
-import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.serialization.js.ModuleKind
 
@@ -70,10 +69,7 @@ data class ExportedProperty(
 ) : ExportedDeclaration()
 
 // TODO: Cover all cases with frontend and disable error declarations
-class ErrorDeclaration(val message: String) : ExportedDeclaration() {
-    val name = message
-}
-
+class ErrorDeclaration(val message: String) : ExportedDeclaration()
 
 sealed class ExportedClass : ExportedDeclaration() {
     abstract val name: String
