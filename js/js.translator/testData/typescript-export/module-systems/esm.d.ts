@@ -1,7 +1,6 @@
 type Nullable<T> = T | null | undefined
 export declare const value: { get(): number; };
 export declare const variable: { get(): number; set(value: number): void; };
-export declare function box(): string;
 export declare class C {
     constructor(x: number);
     get x(): number;
@@ -24,6 +23,7 @@ declare namespace __NonExistentParent {
         get value(): number;
     }
 }
+export declare function box(): string;
 declare namespace _objects_ {
     const foo$Parent: {
         get value(): number;
