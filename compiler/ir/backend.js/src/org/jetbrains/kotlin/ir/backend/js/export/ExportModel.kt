@@ -71,6 +71,7 @@ data class ExportedProperty(
 // TODO: Cover all cases with frontend and disable error declarations
 class ErrorDeclaration(val message: String) : ExportedDeclaration()
 
+
 sealed class ExportedClass : ExportedDeclaration() {
     abstract val name: String
     abstract val ir: IrClass
