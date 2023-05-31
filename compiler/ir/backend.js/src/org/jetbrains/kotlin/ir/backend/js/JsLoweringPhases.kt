@@ -943,7 +943,6 @@ val loweringList = listOf<Lowering>(
     cleanupLoweringPhase,
     // Currently broken due to static members lowering making single-open-class
     // files non-recognizable as single-class files
-    // moveAllClassesToSeparatePlaceLowering,
     validateIrAfterLowering,
 )
 
