@@ -182,7 +182,7 @@ class JsIrBackendFacade(
             mainArguments,
             moduleToName = runIf(isEsModules) {
                 loweredIr.allModules.associateWith {
-                    "./${getJsArtifactSimpleName(testServices, it.safeName)}_v5.mjs".minifyIfNeed()
+                    "./${getJsArtifactSimpleName(testServices, it.safeName)}_v5".minifyIfNeed()
                 }
             } ?: emptyMap()
         )
@@ -348,8 +348,9 @@ fun String.minifyIfNeed(): String {
     if (fileName.length <= 80) return this
 
     val fileExtension = fileFullName.substringAfterLast('.')
+    val extensionPart = if (fileExtension.isEmpty()) "" else ".$fileExtension"
 
-    return "$directoryPath$delimiter${fileName.cityHash64().toULong().toString(16)}.$fileExtension"
+    return "$directoryPath$delimiter${fileName.cityHash64().toULong().toString(16)}$extensionPart"
 }
 
 fun File.augmentWithModuleName(moduleName: String): File = File(absolutePath.augmentWithModuleName(moduleName))

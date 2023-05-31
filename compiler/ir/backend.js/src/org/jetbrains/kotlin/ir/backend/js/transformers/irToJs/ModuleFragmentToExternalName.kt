@@ -37,8 +37,7 @@ class ModuleFragmentToExternalName(private val jsOutputNamesMapping: Map<IrModul
     }
 
     private fun IrModuleFragment.getJsOutputName(): String {
-        // TODO: Replace should be removed before merge
-        return jsOutputNamesMapping[this]?.replace(".mjs", "") ?: sanitizeName(safeName)
+        return jsOutputNamesMapping[this] ?: sanitizeName(safeName)
     }
 
     private fun String.getExternalModuleNameForPerFile(file: IrFile) = "$this/${file.stableFileName}"
