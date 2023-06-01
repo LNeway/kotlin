@@ -9,7 +9,6 @@ import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.descriptors.Visibility
-import org.jetbrains.kotlin.ir.IrBuiltIns
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.symbols.*
 import org.jetbrains.kotlin.ir.types.*
@@ -300,20 +299,11 @@ abstract class IrExpectActualMatchingContext(
          */
         val actualizedExpectType = actualizingSubstitutor.substitute(expectType as IrType)
         val actualizedActualType = actualizingSubstitutor.substitute(actualType as IrType)
-        val equalTypes = AbstractTypeChecker.equalTypes(
+        return AbstractTypeChecker.equalTypes(
             typeContext.newTypeCheckerState(errorTypesEqualToAnything = true, stubTypesEqualToAnything = false),
             actualizedExpectType,
             actualizedActualType
         )
-        if (!equalTypes) {
-            Unit
-            AbstractTypeChecker.equalTypes(
-                typeContext.newTypeCheckerState(errorTypesEqualToAnything = true, stubTypesEqualToAnything = false),
-                actualizedExpectType,
-                actualizedActualType
-            )
-        }
-        return equalTypes
     }
 
     private val actualizingSubstitutor = ActualizingSubstitutor()
