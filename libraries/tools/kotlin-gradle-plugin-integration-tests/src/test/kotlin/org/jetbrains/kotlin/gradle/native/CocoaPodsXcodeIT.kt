@@ -8,7 +8,6 @@ package org.jetbrains.kotlin.gradle.native
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.testbase.*
 import org.jetbrains.kotlin.gradle.util.assertProcessRunResult
-import org.jetbrains.kotlin.gradle.util.replaceText
 import org.jetbrains.kotlin.gradle.util.runProcess
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.condition.OS
@@ -23,8 +22,6 @@ import kotlin.test.assertEquals
 @GradleTestVersions(minVersion = TestVersions.Gradle.G_7_0)
 @OptIn(EnvironmentalVariablesOverride::class)
 class CocoaPodsXcodeIT : KGPBaseTest() {
-
-    private val podfileImportDirectivePlaceholder = "<import_mode_directive>"
 
     private val cocoapodsSingleKtPod = "native-cocoapods-single"
     private val cocoapodsMultipleKtPods = "native-cocoapods-multiple"
@@ -141,20 +138,6 @@ class CocoaPodsXcodeIT : KGPBaseTest() {
         null,
         mapOf("kotlin-library" to "FirstMultiplatformLibrary", "second-library" to "SecondMultiplatformLibrary")
     )
-
-    private enum class ImportMode(val directive: String) {
-        FRAMEWORKS("use_frameworks!"),
-        MODULAR_HEADERS("use_modular_headers!")
-    }
-
-    private fun TestProject.preparePodfile(iosAppLocation: String, mode: ImportMode) {
-        val iosAppDir = projectPath.resolve(iosAppLocation)
-
-        // Set import mode for Podfile.
-        iosAppDir.resolve("Podfile")
-            .takeIf { it.exists() }
-            ?.replaceText(podfileImportDirectivePlaceholder, mode.directive)
-    }
 
     private fun doTestXcode(
         projectName: String,
