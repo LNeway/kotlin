@@ -12,7 +12,7 @@ import kotlin.io.path.appendText
 val String.normalizeCocoapadsFrameworkName: String
     get() = replace('-', '_')
 
-fun TestProject.useCustomFrameworkName(
+fun TestProject.useCustomCocoapodsFrameworkName(
     subprojectName: String,
     frameworkName: String,
     iosAppLocation: String? = null,

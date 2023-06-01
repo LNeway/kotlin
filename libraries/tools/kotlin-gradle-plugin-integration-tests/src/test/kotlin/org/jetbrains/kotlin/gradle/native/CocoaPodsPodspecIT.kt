@@ -68,7 +68,7 @@ class CocoaPodsPodspecIT : KGPBaseTest() {
         nativeProject(projectName, gradleVersion) {
             for ((subproject, frameworkName) in subprojectsToFrameworkNamesMap) {
                 frameworkName?.let {
-                    useCustomFrameworkName(subproject, it)
+                    useCustomCocoapodsFrameworkName(subproject, it)
                 }
 
                 // Check that we can generate the wrapper along with the podspec if the corresponding property specified
