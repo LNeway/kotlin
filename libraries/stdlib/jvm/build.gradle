@@ -141,10 +141,12 @@ DexMethodCountKt.dexMethodCount(project) { task ->
 }
 
 compileKotlin {
-    kotlinJavaToolchain.toolchain.use(JvmToolchain.getToolchainLauncherFor(project, JdkMajorVersion.JDK_1_6))
+    kotlinJavaToolchain.toolchain.use(JvmToolchain.getToolchainLauncherFor(project, JdkMajorVersion.JDK_11_0))
     kotlinOptions {
         jvmTarget = "1.8"
         freeCompilerArgs = [
+                "-Xjdk-release=6",
+                "-Xsuppress-jdk-release-jvm-target-conflict",
                 "-Xallow-kotlin-package",
                 "-Xmultifile-parts-inherit",
                 "-opt-in=kotlin.RequiresOptIn",
@@ -161,9 +163,11 @@ compileKotlin {
 }
 
 compileMainJdk7Kotlin {
-    kotlinJavaToolchain.toolchain.use(JvmToolchain.getToolchainLauncherFor(project, JdkMajorVersion.JDK_1_7))
+    kotlinJavaToolchain.toolchain.use(JvmToolchain.getToolchainLauncherFor(project, JdkMajorVersion.JDK_11_0))
     kotlinOptions.jvmTarget = "1.8"
     kotlinOptions.freeCompilerArgs = [
+            "-Xjdk-release=7",
+            "-Xsuppress-jdk-release-jvm-target-conflict",
             "-Xallow-kotlin-package",
             "-Xmultifile-parts-inherit",
             "-Xno-new-java-annotation-targets",
