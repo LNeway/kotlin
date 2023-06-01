@@ -3008,10 +3008,6 @@ sealed interface KtFirDiagnostic<PSI : PsiElement> : KtDiagnosticWithPsi<PSI> {
         override val diagnosticClass get() = InlineSuspendFunctionTypeUnsupported::class
     }
 
-    interface RedundantInlineSuspendFunctionType : KtFirDiagnostic<KtElement> {
-        override val diagnosticClass get() = RedundantInlineSuspendFunctionType::class
-    }
-
     interface InefficientEqualsOverridingInValueClass : KtFirDiagnostic<KtNamedFunction> {
         override val diagnosticClass get() = InefficientEqualsOverridingInValueClass::class
         val type: KtType
