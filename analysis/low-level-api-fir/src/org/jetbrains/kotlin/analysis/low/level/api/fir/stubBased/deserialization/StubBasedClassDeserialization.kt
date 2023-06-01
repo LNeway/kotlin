@@ -6,6 +6,9 @@
 package org.jetbrains.kotlin.analysis.low.level.api.fir.stubBased.deserialization
 
 import com.intellij.psi.PsiElement
+import com.intellij.psi.impl.source.tree.FileElement
+import com.intellij.psi.stubs.StubTreeLoader
+import com.intellij.psi.util.PsiUtilCore
 import org.jetbrains.kotlin.KtFakeSourceElement
 import org.jetbrains.kotlin.KtRealPsiSourceElement
 import org.jetbrains.kotlin.descriptors.*
@@ -44,6 +47,17 @@ internal val KtDeclaration.modality: Modality
             else -> Modality.FINAL
         }
     }
+
+internal fun <S> loadStubByElement(function: KtElement): S? {
+    val ktFile = function.containingKtFile
+    val virtualFile = PsiUtilCore.getVirtualFile(ktFile) ?: return null
+    val stubTree = StubTreeLoader.getInstance().readFromVFile(function.project, virtualFile) ?: return null
+    val stubList = stubTree.plainList
+    val nodeList = (ktFile.node as FileElement).stubbedSpine.spineNodes
+    if (stubList.size != nodeList.size) return null //throw error?
+    @Suppress("UNCHECKED_CAST")
+    return stubList[nodeList.indexOf(function.node)] as S?
+}
 
 internal fun deserializeClassToSymbol(
     classId: ClassId,
