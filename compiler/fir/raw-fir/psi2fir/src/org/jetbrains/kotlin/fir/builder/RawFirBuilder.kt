@@ -1308,6 +1308,9 @@ open class RawFirBuilder(
                                 )
                             )
                         }
+                        for (destructingDeclaration in classOrObject.body?.destructingDeclarations ?: emptyList()) {
+                            addDeclaration(buildErrorTopLevelDestructuringDeclaration(destructingDeclaration.toFirSourceElement()))
+                        }
                         for (danglingModifier in classOrObject.body?.danglingModifierLists ?: emptyList()) {
                             addDeclaration(
                                 buildErrorTopLevelDeclarationForDanglingModifierList(danglingModifier).apply {

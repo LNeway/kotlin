@@ -78,6 +78,9 @@ public interface KtStubElementTypes {
     KtModifierListElementType<KtDeclarationModifierList> MODIFIER_LIST =
             new KtModifierListElementType<>("MODIFIER_LIST", KtDeclarationModifierList.class);
 
+    KtPlaceHolderStubElementType<KtDestructuringDeclaration> DESTRUCTURING_DECLARATION =
+            new KtPlaceHolderStubElementType<>("DESTRUCTURING_DECLARATION", KtDestructuringDeclaration.class);
+
     KtPlaceHolderStubElementType<KtTypeConstraintList> TYPE_CONSTRAINT_LIST =
             new KtPlaceHolderStubElementType<>("TYPE_CONSTRAINT_LIST", KtTypeConstraintList.class);
 
