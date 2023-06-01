@@ -28,7 +28,7 @@ abstract class IrPackageFragment : IrElementBase(), IrDeclarationContainer, IrSy
     abstract var packageFqName: FqName
 
     @Deprecated(
-        message = "Usage of `fqName` is deprecated. Please use `packageFqName` instead",
+        message = "Please use `packageFqName` instead",
         replaceWith = ReplaceWith("packageFqName"),
         level = DeprecationLevel.ERROR,
     )

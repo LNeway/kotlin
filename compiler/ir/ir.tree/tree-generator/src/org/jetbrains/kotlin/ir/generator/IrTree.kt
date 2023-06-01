@@ -540,7 +540,7 @@ object IrTree : AbstractTreeBuilder() {
             baseGetter = code("packageFqName")
             generationCallback = {
                 val deprecatedAnnotation = AnnotationSpec.builder(Deprecated::class)
-                    .addMember(code("message = \"Usage of `fqName` is deprecated. Please use `packageFqName` instead\""))
+                    .addMember(code("message = \"Please use `packageFqName` instead\""))
                     .addMember(code("replaceWith = ReplaceWith(\"packageFqName\")"))
                     .addMember(code("level = DeprecationLevel.ERROR"))
                     .build()
