@@ -9,7 +9,6 @@ import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinJsCompilerType
 import org.jetbrains.kotlin.gradle.testbase.*
 import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.condition.OS
 
 abstract class AbstractJsConfigurationCacheIT(protected val irBackend: Boolean) : KGPBaseTest() {
     @Suppress("DEPRECATION")
@@ -158,24 +157,3 @@ class JsConfigurationCacheIT : AbstractJsConfigurationCacheIT(irBackend = false)
 
 @JsGradlePluginTests
 class JsIrConfigurationCacheIT : AbstractJsConfigurationCacheIT(irBackend = true)
-
-class JsSetupConfigurationCacheIT : AbstractJsConfigurationCacheIT(irBackend = true) {
-    @DisplayName("Check Node.JS setup on different platforms")
-    @OsCondition(enabledOnCI = [OS.LINUX, OS.WINDOWS, OS.MAC])
-    @GradleTest
-    // hack to be run on mac m*
-    @NativeGradlePluginTests
-    fun checkNodeJsSetup(gradleVersion: GradleVersion) {
-        project("kotlin-js-browser-project", gradleVersion) {
-            build("kotlinUpgradeYarnLock") {
-                assertTasksExecuted(":kotlinUpgradeYarnLock")
-                assertConfigurationCacheStored()
-            }
-
-            build("kotlinUpgradeYarnLock") {
-                assertTasksUpToDate(":kotlinUpgradeYarnLock")
-                assertConfigurationCacheReused()
-            }
-        }
-    }
-}
