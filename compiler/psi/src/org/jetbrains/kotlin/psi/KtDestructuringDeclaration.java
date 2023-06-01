@@ -25,20 +25,13 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.KtNodeTypes;
 import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.psi.psiUtil.KtPsiUtilKt;
-import org.jetbrains.kotlin.psi.stubs.KotlinPlaceHolderStub;
-import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes;
 
 import java.util.List;
 
 import static org.jetbrains.kotlin.lexer.KtTokens.*;
 
-public class KtDestructuringDeclaration extends KtDeclarationStub<KotlinPlaceHolderStub<KtDestructuringDeclaration>>
-        implements KtValVarKeywordOwner, KtDeclarationWithInitializer {
+public class KtDestructuringDeclaration extends KtDeclarationImpl implements KtValVarKeywordOwner, KtDeclarationWithInitializer {
     private static final TokenSet VAL_VAR_KEYWORDS = TokenSet.create(VAL_KEYWORD, VAR_KEYWORD);
-
-    public KtDestructuringDeclaration(KotlinPlaceHolderStub<KtDestructuringDeclaration> stub) {
-        super(stub, KtStubElementTypes.DESTRUCTURING_DECLARATION);
-    }
 
     public KtDestructuringDeclaration(@NotNull ASTNode node) {
         super(node);
