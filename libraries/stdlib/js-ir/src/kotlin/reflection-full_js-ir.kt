@@ -13,11 +13,9 @@ public fun <T : Any> KClass<T>.createInstance(): T {
     if (jsClass === js("Object")) return js("{}")
 
     val noArgsConstructor = jsClass.`$metadata$`.unsafeCast<Metadata?>()?.defaultConstructor
-        ?: throw IllegalArgumentException("Class should have a single no-arg constructor: $this")
+        ?: throw IllegalArgumentException("Class \"$simpleName\" should have a single no-arg constructor")
 
-    val isProvidedClassEsClass = isEsClass(jsClass)
-
-    return if (!isProvidedClassEsClass || noArgsConstructor === jsClass) {
+    return if (!isEsClass(jsClass) || noArgsConstructor === jsClass) {
         js("new noArgsConstructor()")
     } else {
         js("noArgsConstructor.call(jsClass)")

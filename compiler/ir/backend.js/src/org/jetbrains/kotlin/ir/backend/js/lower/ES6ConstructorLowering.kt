@@ -52,7 +52,7 @@ val IrFunctionAccessExpression.isInitCall: Boolean
     get() = origin == ES6_INIT_CALL
 
 val IrDeclaration.isSyntheticConstructorForExport: Boolean
-    get() = origin == PrimaryConstructorLowering.SYNTHETIC_PRIMARY_CONSTRUCTOR
+    get() = origin == ES6_SYNTHETIC_EXPORT_CONSTRUCTOR
 
 class ES6ConstructorLowering(val context: JsIrBackendContext) : DeclarationTransformer {
     private var IrConstructor.constructorFactory by context.mapping.secondaryConstructorToFactory

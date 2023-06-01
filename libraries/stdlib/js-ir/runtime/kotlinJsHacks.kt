@@ -51,9 +51,3 @@ internal annotation class JsFun(val code: String)
  */
 @Target(AnnotationTarget.CLASS)
 internal annotation class JsImplicitExport
-
-/**
- * The annotation is needed for annotating class which doesn't require extra reflection metadata like default constructor
- */
-@Target(AnnotationTarget.CLASS)
-internal annotation class JsSkipFullReflection

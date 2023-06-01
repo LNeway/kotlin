@@ -25,7 +25,6 @@ object JsAnnotations {
     val jsQualifierFqn = FqName("kotlin.js.JsQualifier")
     val jsExportFqn = FqName("kotlin.js.JsExport")
     val jsImplicitExportFqn = FqName("kotlin.js.JsImplicitExport")
-    val jsSkipFullReflection = FqName("kotlin.js.JsSkipFullReflection")
     val jsExportIgnoreFqn = FqName("kotlin.js.JsExport.Ignore")
     val jsNativeGetter = FqName("kotlin.js.nativeGetter")
     val jsNativeSetter = FqName("kotlin.js.nativeSetter")
@@ -61,9 +60,6 @@ fun IrAnnotationContainer.isJsExport(): Boolean =
 
 fun IrAnnotationContainer.isJsImplicitExport(): Boolean =
     hasAnnotation(JsAnnotations.jsImplicitExportFqn)
-
-fun IrAnnotationContainer.couldSkipFullReflection(): Boolean =
-    hasAnnotation(JsAnnotations.jsSkipFullReflection)
 
 fun IrAnnotationContainer.isJsExportIgnore(): Boolean =
     hasAnnotation(JsAnnotations.jsExportIgnoreFqn)
