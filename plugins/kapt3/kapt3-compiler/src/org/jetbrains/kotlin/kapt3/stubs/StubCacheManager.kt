@@ -31,10 +31,16 @@ object StubCacheManager : DefaultHandler() {
     private val currentFileSubsInfoMap = mutableMapOf<String, MutableList<Pair<String, String>>>()
     private val currentFileMD5Map = mutableMapOf<String, String>()
 
-    fun backUpKtFileStubInfo(filePath: String, infoList: List<Pair<String, String>>) {
+    fun backUpKtFileStubFile(filePath: String, stubFilePath: String) {
         val currentMD5 = calcFileMD5(filePath)
         currentFileMD5Map[filePath] = currentMD5
-        currentFileSubsInfoMap[filePath] = infoList.toMutableList();
+        val pair = Pair(stubFilePath, "")
+        var mutableList = currentFileSubsInfoMap[filePath]
+        if (mutableList == null) {
+            mutableList = mutableListOf()
+        }
+        mutableList.add(pair)
+        currentFileSubsInfoMap[filePath] = mutableList
     }
 
     fun saveCacheToDisk(path: String) {

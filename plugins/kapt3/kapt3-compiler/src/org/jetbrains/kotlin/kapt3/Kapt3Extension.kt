@@ -173,6 +173,11 @@ abstract class AbstractKapt3Extension(
                 generateKotlinSourceStubs(context)
             }
         }
+        val cacheDir = File(System.getProperty("user.home"), "./gradle/stubCache")
+        val isCacheDirReady = cacheDir.mkdirs()
+        if (isCacheDirReady) {
+            StubCacheManager.saveCacheToDisk(File(cacheDir, "cache.xml").absolutePath)
+        }
 
         if (!options.mode.runAnnotationProcessing) return doNotGenerateCode()
 
@@ -318,7 +323,7 @@ abstract class AbstractKapt3Extension(
             sourceFile.writeText(stub.prettyPrint(kaptContext.context))
 
             kaptStub.sourceKtFile?.let {
-                StubCacheManager.backUpKtFileStubInfo(it, mutableListOf<Pair<String, String>>(Pair(sourceFile.absolutePath, "")))
+                StubCacheManager.backUpKtFileStubFile(it, sourceFile.absolutePath)
             }
             kaptStub.writeMetadataIfNeeded(forSource = sourceFile)
         }
