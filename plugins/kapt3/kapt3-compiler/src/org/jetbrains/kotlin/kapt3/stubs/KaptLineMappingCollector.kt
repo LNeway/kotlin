@@ -34,7 +34,7 @@ class KaptLineMappingCollector(private val kaptContext: KaptContextForStubGenera
     private val lineInfo: LineInfoMap = mutableMapOf()
     private val signatureInfo = mutableMapOf<String, String>()
 
-    private val filePaths = mutableMapOf<PsiFile, Pair<String, Boolean>>()
+    val filePaths = mutableMapOf<PsiFile, Pair<String, Boolean>>()
 
     fun registerClass(clazz: ClassNode) {
         register(clazz, clazz.name)

@@ -171,7 +171,7 @@ class ClassFileToSourceStubConverter(val kaptContext: KaptContextForStubGenerati
         return topLevel
     }
 
-    class KaptStub(val file: JCCompilationUnit, private val kaptMetadata: ByteArray? = null) {
+    class KaptStub(val file: JCCompilationUnit, val sourceKtFile:String?,  private val kaptMetadata: ByteArray? = null) {
         fun writeMetadataIfNeeded(forSource: File) {
             if (kaptMetadata == null) {
                 return
@@ -223,8 +223,9 @@ class ClassFileToSourceStubConverter(val kaptContext: KaptContextForStubGenerati
         }
 
         postProcess(topLevel)
-
-        return KaptStub(topLevel, lineMappings.serialize())
+        val sourceKtFile = lineMappings.filePaths.toList().firstOrNull()?.first?.virtualFile?.path
+        println("sourceKtFile is $sourceKtFile")
+        return KaptStub(topLevel, sourceKtFile, lineMappings.serialize())
     }
 
     private fun postProcess(topLevel: JCCompilationUnit) {

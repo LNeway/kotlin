@@ -56,6 +56,7 @@ import org.jetbrains.kotlin.kapt3.base.util.isJava11OrLater
 import org.jetbrains.kotlin.kapt3.diagnostic.KaptError
 import org.jetbrains.kotlin.kapt3.stubs.ClassFileToSourceStubConverter
 import org.jetbrains.kotlin.kapt3.stubs.ClassFileToSourceStubConverter.KaptStub
+import org.jetbrains.kotlin.kapt3.stubs.StubCacheManager
 import org.jetbrains.kotlin.kapt3.util.MessageCollectorBackedKaptLogger
 import org.jetbrains.kotlin.modules.TargetId
 import org.jetbrains.kotlin.psi.KtFile
@@ -316,6 +317,9 @@ abstract class AbstractKapt3Extension(
             val sourceFile = File(packageDir, "$className.java")
             sourceFile.writeText(stub.prettyPrint(kaptContext.context))
 
+            kaptStub.sourceKtFile?.let {
+                StubCacheManager.backUpKtFileStubInfo(it, mutableListOf<Pair<String, String>>(Pair(sourceFile.absolutePath, "")))
+            }
             kaptStub.writeMetadataIfNeeded(forSource = sourceFile)
         }
     }
