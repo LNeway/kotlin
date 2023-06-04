@@ -153,7 +153,7 @@ abstract class AbstractKapt3Extension(
 
         if (files is ArrayList) {
             val stubCache = StubCacheManager.getStubCacheByModuleName(module.name.asString())
-            stubCache.loadStubsData(stubCache.getCachePath(module.name.asString()))
+            stubCache.loadStubsData(stubCache.getCachePath())
             val iterator = files.iterator()
             while (iterator.hasNext()) {
                 val next = iterator.next()

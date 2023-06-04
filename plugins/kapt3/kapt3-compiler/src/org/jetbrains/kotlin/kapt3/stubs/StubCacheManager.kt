@@ -12,7 +12,7 @@ object StubCacheManager {
     fun getStubCacheByModuleName(module: String): StubCache {
         var cache = map[module]
         if (cache == null) {
-            cache = StubCache()
+            cache = StubCache(module)
             map[module] = cache
         }
         return cache
