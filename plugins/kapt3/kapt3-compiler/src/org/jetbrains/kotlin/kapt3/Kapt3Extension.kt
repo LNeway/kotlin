@@ -150,7 +150,7 @@ abstract class AbstractKapt3Extension(
         if (options.mode == APT_ONLY) {
             return AnalysisResult.EMPTY
         }
-
+        val startTime = System.currentTimeMillis()
         if (files is ArrayList) {
             val stubCache = StubCacheManager.getStubCacheByModuleName(module.name.asString())
             stubCache.loadStubsData(stubCache.getCachePath())
@@ -159,11 +159,12 @@ abstract class AbstractKapt3Extension(
                 val next = iterator.next()
                 if (stubCache.hasKtFileCache(next.virtualFilePath)) {
                     iterator.remove()
-                    println("${next.virtualFilePath} hit cache, try to resotre")
+                    println("${next.virtualFilePath} hit cache, try to restore")
                     stubCache.restoreStubFile(next.virtualFilePath, options.stubsOutputDir.absolutePath)
                 }
             }
         }
+        println("${module.name.asString()} cache scan cost ${System.currentTimeMillis() - startTime}, and collection size is ${files.size}")
         return super.doAnalysis(project, module, projectContext, files, bindingTrace, componentProvider)
     }
 
@@ -174,7 +175,7 @@ abstract class AbstractKapt3Extension(
         files: Collection<KtFile>
     ): AnalysisResult? {
         if (setAnnotationProcessingComplete()) return null
-
+        val startTime = System.currentTimeMillis()
         fun doNotGenerateCode() = AnalysisResult.success(BindingContext.EMPTY, module, shouldGenerateCode = false)
 
         logger.info { "Initial analysis took ${System.currentTimeMillis() - pluginInitializedTime} ms" }
@@ -187,7 +188,7 @@ abstract class AbstractKapt3Extension(
                 generateKotlinSourceStubs(context, module)
             }
         }
-        println("generateStubs task finish")
+        println("generateStubs task finish ${System.currentTimeMillis() - startTime}")
         val stubCache = StubCacheManager.getStubCacheByModuleName(module.name.asString())
         val cacheFile = stubCache.getCachePath()
         stubCache.saveCacheToDisk(cacheFile)
