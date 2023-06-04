@@ -33,6 +33,7 @@ import org.jetbrains.kotlin.kapt3.javac.KaptJavaFileObject
 import org.jetbrains.kotlin.kapt3.prettyPrint
 import org.jetbrains.kotlin.kapt3.stubs.ClassFileToSourceStubConverter
 import org.jetbrains.kotlin.kapt3.stubs.ClassFileToSourceStubConverter.KaptStub
+import org.jetbrains.kotlin.kapt3.stubs.StubCache
 import org.jetbrains.kotlin.kapt3.util.MessageCollectorBackedKaptLogger
 import org.jetbrains.kotlin.resolve.jvm.extensions.AnalysisHandlerExtension
 import org.jetbrains.kotlin.test.ConfigurationKind
@@ -177,7 +178,7 @@ abstract class AbstractKotlinKapt3IntegrationTest : KotlinKapt3TestBase() {
             processors.map { IncrementalProcessor(it, DeclaredProcType.NON_INCREMENTAL, logger) },
             Kapt3ExtensionForTests::class.java.classLoader)
 
-        override fun saveStubs(kaptContext: KaptContext, stubs: List<KaptStub>) {
+        override fun saveStubs(kaptContext: KaptContext, stubs: List<KaptStub>, stubCache: StubCache?) {
             if (this.savedStubs != null) {
                 error("Stubs are already saved")
             }

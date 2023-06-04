@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.kapt3.test;
 
 import com.intellij.testFramework.TestDataPath;
+import org.jetbrains.kotlin.kapt3.stubs.StubCache;
 import org.jetbrains.kotlin.test.JUnit3RunnerWithInners;
 import org.jetbrains.kotlin.test.KotlinTestUtils;
 import org.jetbrains.kotlin.test.util.KtTestUtil;

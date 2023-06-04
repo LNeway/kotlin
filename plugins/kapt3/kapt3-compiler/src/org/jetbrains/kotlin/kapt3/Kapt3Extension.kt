@@ -56,6 +56,7 @@ import org.jetbrains.kotlin.kapt3.base.util.isJava11OrLater
 import org.jetbrains.kotlin.kapt3.diagnostic.KaptError
 import org.jetbrains.kotlin.kapt3.stubs.ClassFileToSourceStubConverter
 import org.jetbrains.kotlin.kapt3.stubs.ClassFileToSourceStubConverter.KaptStub
+import org.jetbrains.kotlin.kapt3.stubs.StubCache
 import org.jetbrains.kotlin.kapt3.stubs.StubCacheManager
 import org.jetbrains.kotlin.kapt3.util.MessageCollectorBackedKaptLogger
 import org.jetbrains.kotlin.modules.TargetId
@@ -150,6 +151,18 @@ abstract class AbstractKapt3Extension(
             return AnalysisResult.EMPTY
         }
 
+        if (files is ArrayList) {
+            val stubCache = StubCacheManager.getStubCacheByModuleName(module.name.asString())
+            stubCache.loadStubsData(stubCache.getCachePath(module.name.asString()))
+            val iterator = files.iterator()
+            while (iterator.hasNext()) {
+                val next = iterator.next()
+                if (stubCache.hasKtFileCache(next.virtualFilePath)) {
+                    iterator.remove()
+                    println("${next.virtualFilePath} hit cache, ignore it...")
+                }
+            }
+        }
         return super.doAnalysis(project, module, projectContext, files, bindingTrace, componentProvider)
     }
 
@@ -170,17 +183,13 @@ abstract class AbstractKapt3Extension(
             logger.info { "Kotlin files to compile: " + files.map { it.virtualFile?.name ?: "<in memory ${it.hashCode()}>" } }
 
             contextForStubGeneration(project, module, bindingContext, files.toList()).use { context ->
-                generateKotlinSourceStubs(context)
+                generateKotlinSourceStubs(context, module)
             }
         }
         println("generateStubs task finish")
-        val cacheDir = File(System.getProperty("user.home"), ".gradle/stubCache/${module.name.asString().hashCode()}")
-        cacheDir.mkdirs()
-        println("back up dir is ${cacheDir.absolutePath}")
-        if (cacheDir.exists()) {
-            println("${cacheDir.absolutePath} is ready try to back up")
-            StubCacheManager.saveCacheToDisk(File(cacheDir, "cache.xml").absolutePath)
-        }
+        val stubCache = StubCacheManager.getStubCacheByModuleName(module.name.asString())
+        val cacheFile = stubCache.getCachePath(module.name.asString())
+        stubCache.saveCacheToDisk(cacheFile)
 
         if (!options.mode.runAnnotationProcessing) return doNotGenerateCode()
 
@@ -299,7 +308,7 @@ abstract class AbstractKapt3Extension(
         )
     }
 
-    private fun generateKotlinSourceStubs(kaptContext: KaptContextForStubGeneration) {
+    private fun generateKotlinSourceStubs(kaptContext: KaptContextForStubGeneration, module: ModuleDescriptor) {
         val converter = ClassFileToSourceStubConverter(kaptContext, generateNonExistentClass = true)
 
         val (stubGenerationTime, kaptStubs) = measureTimeMillis {
@@ -309,11 +318,11 @@ abstract class AbstractKapt3Extension(
         logger.info { "Java stub generation took $stubGenerationTime ms" }
         logger.info { "Stubs for Kotlin classes: " + kaptStubs.joinToString { it.file.sourcefile.name } }
 
-        saveStubs(kaptContext, kaptStubs)
+        saveStubs(kaptContext, kaptStubs, StubCacheManager.getStubCacheByModuleName(module.name.asString()))
         saveIncrementalData(kaptContext, logger.messageCollector, converter)
     }
 
-    protected open fun saveStubs(kaptContext: KaptContext, stubs: List<KaptStub>) {
+    protected open fun saveStubs(kaptContext: KaptContext, stubs: List<KaptStub>, stubCache: StubCache?) {
         for (kaptStub in stubs) {
             val stub = kaptStub.file
             val className = (stub.defs.first { it is JCTree.JCClassDecl } as JCTree.JCClassDecl).simpleName.toString()
@@ -326,7 +335,7 @@ abstract class AbstractKapt3Extension(
             sourceFile.writeText(stub.prettyPrint(kaptContext.context))
 
             kaptStub.sourceKtFile?.let {
-                StubCacheManager.backUpKtFileStubFile(it, sourceFile.absolutePath)
+                stubCache?.backUpKtFileStubFile(it, sourceFile.absolutePath)
             }
             kaptStub.writeMetadataIfNeeded(forSource = sourceFile)
         }

@@ -224,7 +224,6 @@ class ClassFileToSourceStubConverter(val kaptContext: KaptContextForStubGenerati
 
         postProcess(topLevel)
         val sourceKtFile = lineMappings.filePaths.toList().firstOrNull()?.first?.virtualFile?.path
-        println("sourceKtFile is $sourceKtFile")
         return KaptStub(topLevel, sourceKtFile, lineMappings.serialize())
     }
 
