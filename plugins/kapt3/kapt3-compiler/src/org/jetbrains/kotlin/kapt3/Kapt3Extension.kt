@@ -173,9 +173,12 @@ abstract class AbstractKapt3Extension(
                 generateKotlinSourceStubs(context)
             }
         }
+        println("generateStubs task finish")
         val cacheDir = File(System.getProperty("user.home"), "./gradle/stubCache")
         val isCacheDirReady = cacheDir.mkdirs()
+        println("back up dir is ${cacheDir.absolutePath}")
         if (isCacheDirReady) {
+            println("${cacheDir.absolutePath} is ready try to back up")
             StubCacheManager.saveCacheToDisk(File(cacheDir, "cache.xml").absolutePath)
         }
 
