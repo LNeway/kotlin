@@ -58,7 +58,7 @@ class StubCache(val moduleName:String): DefaultHandler() {
         val backFileDir = File(cacheFileDir, pkgDir)
         backFileDir.mkdirs()
         println("backFileDir is ${backFileDir.absolutePath}")
-        File(stubFilePath).copyTo(File(pkgDir, stubFileName), true)
+        File(stubFilePath).copyTo(File(backFileDir, stubFileName), true)
     }
 
     fun saveCacheToDisk(path: String) {
