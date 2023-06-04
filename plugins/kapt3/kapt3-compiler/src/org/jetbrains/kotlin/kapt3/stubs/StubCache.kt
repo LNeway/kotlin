@@ -13,17 +13,22 @@ import java.security.MessageDigest
 import javax.xml.parsers.SAXParserFactory
 import javax.xml.stream.XMLOutputFactory
 
-class StubCache : DefaultHandler() {
+class StubCache(val moduleName:String): DefaultHandler() {
     private val lastBuildFileMD5Map = mutableMapOf<String, String>()
     private val lastBuildFileSubsInfoMap = mutableMapOf<String, MutableList<Pair<String, String>>>()
+    private val cacheFileDir:String
 
-    fun getCachePath(moduleName:String):String {
+    init {
         val cacheDir = File(System.getProperty("user.home"), ".gradle/stubCache/${moduleName.hashCode()}")
         if (!cacheDir.exists()) {
             cacheDir.mkdirs()
         }
+        cacheFileDir = cacheDir.absolutePath
         println("$moduleName back up dir is ${cacheDir.absolutePath}")
-        return cacheDir.absolutePath + File.separator + "cache.xml"
+    }
+
+    fun getCachePath():String {
+        return cacheFileDir + File.separator + "cache.xml"
     }
 
     fun loadStubsData(path: String) {
@@ -40,7 +45,7 @@ class StubCache : DefaultHandler() {
     private val currentFileSubsInfoMap = mutableMapOf<String, MutableList<Pair<String, String>>>()
     private val currentFileMD5Map = mutableMapOf<String, String>()
 
-    fun backUpKtFileStubFile(filePath: String, stubFilePath: String) {
+    fun backUpKtFileStubFile(filePath: String, stubFilePath: String, stubFileName:String, pkgDir:String) {
         val currentMD5 = calcFileMD5(filePath)
         currentFileMD5Map[filePath] = currentMD5
         val pair = Pair(stubFilePath, "")
@@ -50,6 +55,10 @@ class StubCache : DefaultHandler() {
         }
         mutableList.add(pair)
         currentFileSubsInfoMap[filePath] = mutableList
+        val backFileDir = File(cacheFileDir, pkgDir)
+        backFileDir.mkdirs()
+        println("backFileDir is ${backFileDir.absolutePath}")
+        File(stubFilePath).copyTo(File(pkgDir, stubFileName), true)
     }
 
     fun saveCacheToDisk(path: String) {

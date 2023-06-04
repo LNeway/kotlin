@@ -188,7 +188,7 @@ abstract class AbstractKapt3Extension(
         }
         println("generateStubs task finish")
         val stubCache = StubCacheManager.getStubCacheByModuleName(module.name.asString())
-        val cacheFile = stubCache.getCachePath(module.name.asString())
+        val cacheFile = stubCache.getCachePath()
         stubCache.saveCacheToDisk(cacheFile)
 
         if (!options.mode.runAnnotationProcessing) return doNotGenerateCode()
@@ -335,7 +335,7 @@ abstract class AbstractKapt3Extension(
             sourceFile.writeText(stub.prettyPrint(kaptContext.context))
 
             kaptStub.sourceKtFile?.let {
-                stubCache?.backUpKtFileStubFile(it, sourceFile.absolutePath)
+                stubCache?.backUpKtFileStubFile(it, sourceFile.absolutePath, "$className.java", packageName.replace('.', '/'))
             }
             kaptStub.writeMetadataIfNeeded(forSource = sourceFile)
         }
