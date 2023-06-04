@@ -56,9 +56,20 @@ class StubCache(val moduleName:String): DefaultHandler() {
         mutableList.add(pair)
         currentFileSubsInfoMap[filePath] = mutableList
         val backFileDir = File(cacheFileDir, pkgDir)
-        backFileDir.mkdirs()
+        if (!backFileDir.exists()) {
+            backFileDir.mkdirs()
+        }
         println("backFileDir is ${backFileDir.absolutePath}")
         File(stubFilePath).copyTo(File(backFileDir, stubFileName), true)
+    }
+
+    fun restoreStubFile(sourceKtFile: String, stubFileOutDir: String) {
+        val list = lastBuildFileSubsInfoMap[sourceKtFile]
+        list?.forEach {
+            val sourceStubFile = it.first.replace(stubFileOutDir, cacheFileDir)
+            File(sourceStubFile).copyTo(File(it.first), true)
+            println("restore $sourceStubFile to ${it.first}")
+        }
     }
 
     fun saveCacheToDisk(path: String) {
@@ -98,10 +109,6 @@ class StubCache(val moduleName:String): DefaultHandler() {
     fun hasKtFileCache(filePath:String):Boolean {
         val currentMD5 = calcFileMD5(filePath)
         return lastBuildFileMD5Map[filePath] == currentMD5
-    }
-
-    fun getStubFilesByKtFile(filePath:String):List<Pair<String, String>> {
-        return lastBuildFileSubsInfoMap.get(filePath)?: emptyList()
     }
 
     private fun calcFileMD5(filePath:String):String {

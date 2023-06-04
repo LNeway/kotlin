@@ -158,8 +158,9 @@ abstract class AbstractKapt3Extension(
             while (iterator.hasNext()) {
                 val next = iterator.next()
                 if (stubCache.hasKtFileCache(next.virtualFilePath)) {
-                    //iterator.remove()
-                    println("${next.virtualFilePath} hit cache, ignore it...")
+                    iterator.remove()
+                    println("${next.virtualFilePath} hit cache, try to resotre")
+                    stubCache.restoreStubFile(next.virtualFilePath, options.stubsOutputDir.absolutePath)
                 }
             }
         }
