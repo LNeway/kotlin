@@ -147,6 +147,7 @@ abstract class AbstractKapt3Extension(
         bindingTrace: BindingTrace,
         componentProvider: ComponentProvider
     ): AnalysisResult? {
+        println("[StubCache] begin do doAnalysis")
         if (options.mode == APT_ONLY) {
             return AnalysisResult.EMPTY
         }
@@ -174,6 +175,7 @@ abstract class AbstractKapt3Extension(
         bindingTrace: BindingTrace,
         files: Collection<KtFile>
     ): AnalysisResult? {
+        println("[StubCache] begin analysisCompleted")
         if (setAnnotationProcessingComplete()) return null
         val startTime = System.currentTimeMillis()
         fun doNotGenerateCode() = AnalysisResult.success(BindingContext.EMPTY, module, shouldGenerateCode = false)
