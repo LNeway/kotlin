@@ -19,7 +19,7 @@ class StubCache(val moduleName:String): DefaultHandler() {
     private val fileMd5Map = mutableMapOf<String, String>()
 
     private val cacheFileDir:String
-    lateinit var logger: MessageCollectorBackedKaptLogger
+    var logger: MessageCollectorBackedKaptLogger? = null
 
     init {
         val cacheDir = File(System.getProperty("user.home"), ".gradle/stubCache/${moduleName.hashCode()}")
@@ -27,7 +27,6 @@ class StubCache(val moduleName:String): DefaultHandler() {
             cacheDir.mkdirs()
         }
         cacheFileDir = cacheDir.absolutePath
-        logger.error("$moduleName back up dir is ${cacheDir.absolutePath}")
     }
 
     fun getCachePath():String {
@@ -36,14 +35,14 @@ class StubCache(val moduleName:String): DefaultHandler() {
 
     fun loadStubsData(path: String) {
         if (!File(path).exists()) {
-            logger.error("the cache file $path not exist, ignore the cache")
+            logger?.error("the cache file $path not exist, ignore the cache")
             return
         }
         val parserFactory = SAXParserFactory.newInstance()
         val parser = parserFactory.newSAXParser()
         val handler = this
         parser.parse(path, handler)
-        logger.error("[StubCache] ${moduleName} last cache size is ${lastBuildFileSubsInfoMap.size}")
+        logger?.error("[StubCache] ${moduleName} last cache size is ${lastBuildFileSubsInfoMap.size}")
     }
 
     fun backUpKtFileStubFile(sourceKtFile: String, stubFilePath: String, stubFileDir:String, stubFileName:String, metaFile:File?, pkgDir:String) {
@@ -61,12 +60,12 @@ class StubCache(val moduleName:String): DefaultHandler() {
             backFileDir.mkdirs()
         }
         val backupFile = File(backFileDir, stubFileName)
-        logger.error("[StubCache] backup  ${backupFile.absolutePath}")
+        logger?.error("[StubCache] backup  ${backupFile.absolutePath}")
         File(stubFilePath).copyTo(backupFile, true)
 
         metaFile?.let {
             val backupMetaFile = File(backFileDir, it.name)
-            logger.error("[StubCache] backup  ${backupMetaFile.absolutePath}")
+            logger?.error("[StubCache] backup  ${backupMetaFile.absolutePath}")
             it.copyTo(backupMetaFile, true)
         }
     }
@@ -78,8 +77,7 @@ class StubCache(val moduleName:String): DefaultHandler() {
             val sourceStubFile = cacheFileDir + File.separator + it.first
             val targetFile = File(stubFileOutDir + File.separator + it.first)
             File(sourceStubFile).copyTo(targetFile, true)
-            logger.error("restore $sourceStubFile to ${targetFile.absolutePath}")
-
+            logger?.error("restore $sourceStubFile to ${targetFile.absolutePath}")
 
             val sourceMetaFile = cacheFileDir + File.separator + it.second
             val targetMetaFile = File(stubFileOutDir + File.separator + it.second)
