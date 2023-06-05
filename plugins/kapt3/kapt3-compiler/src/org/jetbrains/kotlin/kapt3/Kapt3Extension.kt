@@ -161,7 +161,7 @@ abstract class AbstractKapt3Extension(
                 if (stubCache.hasKtFileCache(next.virtualFilePath)) {
                     iterator.remove()
                     println("${next.virtualFilePath} hit cache, try to restore")
-                    stubCache.restoreStubFile(next.virtualFilePath, options.stubsOutputDir.absolutePath)
+                    stubCache.restoreStubFile(next.virtualFilePath)
                 }
             }
         }
@@ -339,7 +339,7 @@ abstract class AbstractKapt3Extension(
             sourceFile.writeText(stub.prettyPrint(kaptContext.context))
 
             kaptStub.sourceKtFile?.let {
-                stubCache?.backUpKtFileStubFile(it, sourceFile.absolutePath, "$className.java", packageName.replace('.', '/'))
+                stubCache?.backUpKtFileStubFile(it, sourceFile.absolutePath, options.stubsOutputDir.absolutePath, "$className.java", packageName.replace('.', '/'))
             }
             kaptStub.writeMetadataIfNeeded(forSource = sourceFile)
         }
