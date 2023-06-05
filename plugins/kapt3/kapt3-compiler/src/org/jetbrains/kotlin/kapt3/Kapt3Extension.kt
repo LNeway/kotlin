@@ -347,12 +347,14 @@ abstract class AbstractKapt3Extension(
                     sourceFile.nameWithoutExtension + KaptStubLineInformation.KAPT_METADATA_EXTENSION
                 )
             }
+
+            kaptStub.writeMetadataIfNeeded(forSource = sourceFile)
+
             kaptStub.sourceKtFile?.let {
                 stubCache?.backUpKtFileStubFile(it, sourceFile.absolutePath, options.stubsOutputDir.absolutePath,
                                                 "$className.java", metadataFile,
                                                 packageName.replace('.', '/'))
             }
-            kaptStub.writeMetadataIfNeeded(forSource = sourceFile)
         }
     }
 
