@@ -40,6 +40,7 @@ class StubCache(val moduleName:String): DefaultHandler() {
         val parser = parserFactory.newSAXParser()
         val handler = this
         parser.parse(path, handler)
+        println("[StubCache] ${moduleName} last cache size is ${lastBuildFileMD5Map.size}")
     }
 
     private val currentFileSubsInfoMap = mutableMapOf<String, MutableList<Pair<String, String>>>()
