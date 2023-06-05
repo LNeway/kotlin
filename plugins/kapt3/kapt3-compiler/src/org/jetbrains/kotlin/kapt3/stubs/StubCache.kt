@@ -47,22 +47,24 @@ class StubCache(val moduleName:String): DefaultHandler() {
         val currentMD5 = calcFileMD5(filePath)
         lastBuildFileMD5Map[filePath] = currentMD5
         val pair = Pair(stubFilePath, "")
-        var mutableList = lastBuildFileSubsInfoMap[filePath]
+        var mutableList = lastBuildFileSubsInfoMap[currentMD5]
         if (mutableList == null) {
             mutableList = mutableListOf()
         }
         mutableList.add(pair)
-        lastBuildFileSubsInfoMap[filePath] = mutableList
+        lastBuildFileSubsInfoMap[currentMD5] = mutableList
         val backFileDir = File(cacheFileDir, pkgDir)
         if (!backFileDir.exists()) {
             backFileDir.mkdirs()
         }
-        println("backFileDir is ${backFileDir.absolutePath}")
-        File(stubFilePath).copyTo(File(backFileDir, stubFileName), true)
+        val backupFile = File(backFileDir, stubFileName)
+        println("[StubCache] backup  ${backupFile.absolutePath}")
+        File(stubFilePath).copyTo(backupFile, true)
     }
 
     fun restoreStubFile(sourceKtFile: String, stubFileOutDir: String) {
-        val list = lastBuildFileSubsInfoMap[sourceKtFile]
+        val md5 = calcFileMD5(sourceKtFile)
+        val list = lastBuildFileSubsInfoMap[md5]
         list?.forEach {
             val sourceStubFile = it.first.replace(stubFileOutDir, cacheFileDir)
             File(sourceStubFile).copyTo(File(it.first), true)
@@ -106,7 +108,8 @@ class StubCache(val moduleName:String): DefaultHandler() {
 
     fun hasKtFileCache(filePath:String):Boolean {
         val currentMD5 = calcFileMD5(filePath)
-        return lastBuildFileMD5Map[filePath] == currentMD5
+        val list = lastBuildFileMD5Map[currentMD5]
+        return !list.isNullOrEmpty()
     }
 
     private fun calcFileMD5(filePath:String):String {
@@ -130,7 +133,7 @@ class StubCache(val moduleName:String): DefaultHandler() {
         return stringBuilder.toString()
     }
 
-    private var parseKtPath:String? = null
+    private var parseKtMd5:String? = null
 
     override fun startElement(uri: String, localName: String, qName: String, attributes: Attributes) {
         if (qName == "file") {
@@ -138,25 +141,25 @@ class StubCache(val moduleName:String): DefaultHandler() {
             val md5 = attributes.getValue(md5Index)
             val path = attributes.getValue(attributes.getIndex("path"))
             lastBuildFileMD5Map[path] = md5
-            parseKtPath = path
+            parseKtMd5 = md5
         }
 
         if (qName == "stub") {
-            val classpath = attributes.getValue( attributes.getIndex("classPath"))
-            val metaPath = attributes.getValue( attributes.getIndex("metaPath"))
-            var list = lastBuildFileSubsInfoMap[parseKtPath!!]
+            val classpath = attributes.getValue(attributes.getIndex("classPath"))
+            val metaPath = attributes.getValue(attributes.getIndex("metaPath"))
+            var list = lastBuildFileSubsInfoMap[parseKtMd5!!]
             if (list == null) {
                 list = mutableListOf<Pair<String, String>>()
             }
             list.add(Pair(classpath, metaPath))
-            lastBuildFileSubsInfoMap[parseKtPath!!] = list;
+            lastBuildFileSubsInfoMap[parseKtMd5!!] = list;
         }
     }
 
     override fun endElement(uri: String?, localName: String?, qName: String?) {
         super.endElement(uri, localName, qName)
         if (qName == "file") {
-            parseKtPath = null
+            parseKtMd5 = null
         }
     }
 }
