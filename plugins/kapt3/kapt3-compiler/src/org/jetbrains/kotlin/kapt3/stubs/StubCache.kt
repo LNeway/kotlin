@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.kapt3.stubs
 
+import org.jetbrains.kotlin.kapt3.util.MessageCollectorBackedKaptLogger
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.DefaultHandler
 import java.io.File
@@ -18,6 +19,7 @@ class StubCache(val moduleName:String): DefaultHandler() {
     private val fileMd5Map = mutableMapOf<String, String>()
 
     private val cacheFileDir:String
+    lateinit var logger: MessageCollectorBackedKaptLogger
 
     init {
         val cacheDir = File(System.getProperty("user.home"), ".gradle/stubCache/${moduleName.hashCode()}")
@@ -25,7 +27,7 @@ class StubCache(val moduleName:String): DefaultHandler() {
             cacheDir.mkdirs()
         }
         cacheFileDir = cacheDir.absolutePath
-        println("$moduleName back up dir is ${cacheDir.absolutePath}")
+        logger.error("$moduleName back up dir is ${cacheDir.absolutePath}")
     }
 
     fun getCachePath():String {
@@ -34,19 +36,20 @@ class StubCache(val moduleName:String): DefaultHandler() {
 
     fun loadStubsData(path: String) {
         if (!File(path).exists()) {
-            println("the cache file $path not exist, ignore the cache")
+            logger.error("the cache file $path not exist, ignore the cache")
             return
         }
         val parserFactory = SAXParserFactory.newInstance()
         val parser = parserFactory.newSAXParser()
         val handler = this
         parser.parse(path, handler)
-        println("[StubCache] ${moduleName} last cache size is ${lastBuildFileSubsInfoMap.size}")
+        logger.error("[StubCache] ${moduleName} last cache size is ${lastBuildFileSubsInfoMap.size}")
     }
 
-    fun backUpKtFileStubFile(sourceKtFile: String, stubFilePath: String, stubFileDir:String, stubFileName:String, pkgDir:String) {
+    fun backUpKtFileStubFile(sourceKtFile: String, stubFilePath: String, stubFileDir:String, stubFileName:String, metaFile:File?, pkgDir:String) {
         val currentMD5 = calcFileMD5(sourceKtFile)
-        val pair = Pair(stubFilePath.replace(stubFileDir + File.separator, ""), "")
+        val metaInfo = metaFile?.absolutePath?.replace(stubFileDir + File.separator, "")?: ""
+        val pair = Pair(stubFilePath.replace(stubFileDir + File.separator, ""), metaInfo)
         var mutableList = lastBuildFileSubsInfoMap[currentMD5]
         if (mutableList == null) {
             mutableList = mutableListOf()
@@ -58,8 +61,14 @@ class StubCache(val moduleName:String): DefaultHandler() {
             backFileDir.mkdirs()
         }
         val backupFile = File(backFileDir, stubFileName)
-        println("[StubCache] backup  ${backupFile.absolutePath}")
+        logger.error("[StubCache] backup  ${backupFile.absolutePath}")
         File(stubFilePath).copyTo(backupFile, true)
+
+        metaFile?.let {
+            val backupMetaFile = File(backFileDir, it.name)
+            logger.error("[StubCache] backup  ${backupMetaFile.absolutePath}")
+            it.copyTo(backupMetaFile, true)
+        }
     }
 
     fun restoreStubFile(sourceKtFile: String, stubFileOutDir: String) {
@@ -69,7 +78,12 @@ class StubCache(val moduleName:String): DefaultHandler() {
             val sourceStubFile = cacheFileDir + File.separator + it.first
             val targetFile = File(stubFileOutDir + File.separator + it.first)
             File(sourceStubFile).copyTo(targetFile, true)
-            println("restore $sourceStubFile to ${targetFile.absolutePath}")
+            logger.error("restore $sourceStubFile to ${targetFile.absolutePath}")
+
+
+            val sourceMetaFile = cacheFileDir + File.separator + it.second
+            val targetMetaFile = File(stubFileOutDir + File.separator + it.second)
+            File(sourceMetaFile).copyTo(targetMetaFile, true)
         }
     }
 

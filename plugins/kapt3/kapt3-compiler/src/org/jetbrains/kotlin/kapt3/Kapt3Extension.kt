@@ -48,6 +48,7 @@ import org.jetbrains.kotlin.kapt3.base.KaptContext
 import org.jetbrains.kotlin.kapt3.base.LoadedProcessors
 import org.jetbrains.kotlin.kapt3.base.ProcessorLoader
 import org.jetbrains.kotlin.kapt3.base.doAnnotationProcessing
+import org.jetbrains.kotlin.kapt3.base.stubs.KaptStubLineInformation
 import org.jetbrains.kotlin.kapt3.base.stubs.KaptStubLineInformation.Companion.KAPT_METADATA_EXTENSION
 import org.jetbrains.kotlin.kapt3.base.util.KaptBaseError
 import org.jetbrains.kotlin.kapt3.base.util.getPackageNameJava9Aware
@@ -147,25 +148,26 @@ abstract class AbstractKapt3Extension(
         bindingTrace: BindingTrace,
         componentProvider: ComponentProvider
     ): AnalysisResult? {
-        println("[StubCache] ${module.name.asString()} begin do doAnalysis")
+        logger.error("[StubCache] ${module.name.asString()} begin do doAnalysis")
         if (options.mode == APT_ONLY) {
             return AnalysisResult.EMPTY
         }
         val startTime = System.currentTimeMillis()
         if (files is ArrayList) {
             val stubCache = StubCacheManager.getStubCacheByModuleName(module.name.asString())
+            stubCache.logger = logger
             stubCache.loadStubsData(stubCache.getCachePath())
             val iterator = files.iterator()
             while (iterator.hasNext()) {
                 val next = iterator.next()
                 if (stubCache.hasKtFileCache(next.virtualFilePath)) {
                     iterator.remove()
-                    println("${next.virtualFilePath} hit cache, try to restore")
+                    logger.error("${next.virtualFilePath} hit cache, try to restore")
                     stubCache.restoreStubFile(next.virtualFilePath, this.options.stubsOutputDir.absolutePath)
                 }
             }
         }
-        println("${module.name.asString()} cache scan cost ${System.currentTimeMillis() - startTime}, and collection size is ${files.size}")
+        logger.error("${module.name.asString()} cache scan cost ${System.currentTimeMillis() - startTime}, and collection size is ${files.size}")
         return super.doAnalysis(project, module, projectContext, files, bindingTrace, componentProvider)
     }
 
@@ -175,7 +177,7 @@ abstract class AbstractKapt3Extension(
         bindingTrace: BindingTrace,
         files: Collection<KtFile>
     ): AnalysisResult? {
-        println("[StubCache] ${module.name.asString()} begin analysisCompleted")
+        logger.error("[StubCache] ${module.name.asString()} begin analysisCompleted")
         if (setAnnotationProcessingComplete()) return null
         val startTime = System.currentTimeMillis()
         fun doNotGenerateCode() = AnalysisResult.success(BindingContext.EMPTY, module, shouldGenerateCode = false)
@@ -190,7 +192,7 @@ abstract class AbstractKapt3Extension(
                 generateKotlinSourceStubs(context, module)
             }
         }
-        println("generateStubs task finish ${System.currentTimeMillis() - startTime}")
+        logger.error("generateStubs task finish ${System.currentTimeMillis() - startTime}")
         val stubCache = StubCacheManager.getStubCacheByModuleName(module.name.asString())
         val cacheFile = stubCache.getCachePath()
         stubCache.saveCacheToDisk(cacheFile)
@@ -338,8 +340,17 @@ abstract class AbstractKapt3Extension(
             val sourceFile = File(packageDir, "$className.java")
             sourceFile.writeText(stub.prettyPrint(kaptContext.context))
 
+            var metadataFile:File? = null
+            if (kaptStub.kaptMetadata != null) {
+                metadataFile = File (
+                    sourceFile.parentFile,
+                    sourceFile.nameWithoutExtension + KaptStubLineInformation.KAPT_METADATA_EXTENSION
+                )
+            }
             kaptStub.sourceKtFile?.let {
-                stubCache?.backUpKtFileStubFile(it, sourceFile.absolutePath, options.stubsOutputDir.absolutePath, "$className.java", packageName.replace('.', '/'))
+                stubCache?.backUpKtFileStubFile(it, sourceFile.absolutePath, options.stubsOutputDir.absolutePath,
+                                                "$className.java", metadataFile,
+                                                packageName.replace('.', '/'))
             }
             kaptStub.writeMetadataIfNeeded(forSource = sourceFile)
         }

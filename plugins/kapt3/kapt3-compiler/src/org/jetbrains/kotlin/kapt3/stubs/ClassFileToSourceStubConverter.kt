@@ -171,7 +171,7 @@ class ClassFileToSourceStubConverter(val kaptContext: KaptContextForStubGenerati
         return topLevel
     }
 
-    class KaptStub(val file: JCCompilationUnit, val sourceKtFile:String? = null, private val kaptMetadata: ByteArray? = null) {
+    class KaptStub(val file: JCCompilationUnit, val sourceKtFile:String? = null, val kaptMetadata: ByteArray? = null) {
         fun writeMetadataIfNeeded(forSource: File) {
             if (kaptMetadata == null) {
                 return
