@@ -44,9 +44,9 @@ class StubCache(val moduleName:String): DefaultHandler() {
         println("[StubCache] ${moduleName} last cache size is ${lastBuildFileSubsInfoMap.size}")
     }
 
-    fun backUpKtFileStubFile(filePath: String, stubFilePath: String, stubFileName:String, pkgDir:String) {
-        val currentMD5 = calcFileMD5(filePath)
-        val pair = Pair(stubFilePath, "")
+    fun backUpKtFileStubFile(sourceKtFile: String, stubFilePath: String, stubFileDir:String, stubFileName:String, pkgDir:String) {
+        val currentMD5 = calcFileMD5(sourceKtFile)
+        val pair = Pair(stubFilePath.replace(stubFileDir + File.separator, ""), "")
         var mutableList = lastBuildFileSubsInfoMap[currentMD5]
         if (mutableList == null) {
             mutableList = mutableListOf()
@@ -66,7 +66,7 @@ class StubCache(val moduleName:String): DefaultHandler() {
         val md5 = calcFileMD5(sourceKtFile)
         val list = lastBuildFileSubsInfoMap[md5]
         list?.forEach {
-            val sourceStubFile = it.first.replace(stubFileOutDir, cacheFileDir)
+            val sourceStubFile = cacheFileDir + File.separator + it.first
             File(sourceStubFile).copyTo(File(it.first), true)
             println("restore $sourceStubFile to ${it.first}")
         }
