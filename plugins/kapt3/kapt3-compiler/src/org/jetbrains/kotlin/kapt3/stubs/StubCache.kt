@@ -67,8 +67,9 @@ class StubCache(val moduleName:String): DefaultHandler() {
         val list = lastBuildFileSubsInfoMap[md5]
         list?.forEach {
             val sourceStubFile = cacheFileDir + File.separator + it.first
-            File(sourceStubFile).copyTo(File(it.first), true)
-            println("restore $sourceStubFile to ${it.first}")
+            val targetFile = File(stubFileOutDir + File.separator + it.first)
+            File(sourceStubFile).copyTo(targetFile, true)
+            println("restore $sourceStubFile to ${targetFile.absolutePath}")
         }
     }
 

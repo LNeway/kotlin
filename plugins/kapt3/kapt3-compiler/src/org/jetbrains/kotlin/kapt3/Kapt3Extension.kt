@@ -161,7 +161,7 @@ abstract class AbstractKapt3Extension(
                 if (stubCache.hasKtFileCache(next.virtualFilePath)) {
                     iterator.remove()
                     println("${next.virtualFilePath} hit cache, try to restore")
-                    stubCache.restoreStubFile(next.virtualFilePath)
+                    stubCache.restoreStubFile(next.virtualFilePath, this.options.stubsOutputDir.absolutePath)
                 }
             }
         }
