@@ -14,8 +14,9 @@ import javax.xml.parsers.SAXParserFactory
 import javax.xml.stream.XMLOutputFactory
 
 class StubCache(val moduleName:String): DefaultHandler() {
-    private val lastBuildFileMD5Map = mutableMapOf<String, String>()
     private val lastBuildFileSubsInfoMap = mutableMapOf<String, MutableList<Pair<String, String>>>()
+    private val fileMd5Map = mutableMapOf<String, String>()
+
     private val cacheFileDir:String
 
     init {
@@ -40,12 +41,11 @@ class StubCache(val moduleName:String): DefaultHandler() {
         val parser = parserFactory.newSAXParser()
         val handler = this
         parser.parse(path, handler)
-        println("[StubCache] ${moduleName} last cache size is ${lastBuildFileMD5Map.size}")
+        println("[StubCache] ${moduleName} last cache size is ${lastBuildFileSubsInfoMap.size}")
     }
 
     fun backUpKtFileStubFile(filePath: String, stubFilePath: String, stubFileName:String, pkgDir:String) {
         val currentMD5 = calcFileMD5(filePath)
-        lastBuildFileMD5Map[filePath] = currentMD5
         val pair = Pair(stubFilePath, "")
         var mutableList = lastBuildFileSubsInfoMap[currentMD5]
         if (mutableList == null) {
@@ -83,7 +83,7 @@ class StubCache(val moduleName:String): DefaultHandler() {
             // 写入根元素
             writeStartElement("cache")
             // 写入子元素
-            lastBuildFileMD5Map.forEach { filePath, md5 ->
+            fileMd5Map.forEach { filePath, md5 ->
                 writeStartElement("file")
                 writeAttribute("path", filePath)
                 writeAttribute("md5", md5)
@@ -108,11 +108,15 @@ class StubCache(val moduleName:String): DefaultHandler() {
 
     fun hasKtFileCache(filePath:String):Boolean {
         val currentMD5 = calcFileMD5(filePath)
-        val list = lastBuildFileMD5Map[currentMD5]
+        val list = lastBuildFileSubsInfoMap[currentMD5]
         return !list.isNullOrEmpty()
     }
 
     private fun calcFileMD5(filePath:String):String {
+        if (fileMd5Map.contains(filePath)) {
+            return fileMd5Map[filePath]!!
+        }
+
         val md5Digest = MessageDigest.getInstance("MD5")
         val inputStream = FileInputStream(filePath)
         val buffer = ByteArray(8192)
@@ -130,7 +134,8 @@ class StubCache(val moduleName:String): DefaultHandler() {
         for (md5Byte in md5Bytes) {
             stringBuilder.append(Integer.toHexString(0xFF and md5Byte.toInt()))
         }
-        return stringBuilder.toString()
+        fileMd5Map[filePath] = stringBuilder.toString()
+        return fileMd5Map[filePath]!!
     }
 
     private var parseKtMd5:String? = null
@@ -139,7 +144,6 @@ class StubCache(val moduleName:String): DefaultHandler() {
         if (qName == "file") {
             val md5Index = attributes.getIndex("md5")
             val md5 = attributes.getValue(md5Index)
-            lastBuildFileMD5Map[path] = md5
             parseKtMd5 = md5
         }
 
