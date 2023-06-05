@@ -43,19 +43,16 @@ class StubCache(val moduleName:String): DefaultHandler() {
         println("[StubCache] ${moduleName} last cache size is ${lastBuildFileMD5Map.size}")
     }
 
-    private val currentFileSubsInfoMap = mutableMapOf<String, MutableList<Pair<String, String>>>()
-    private val currentFileMD5Map = mutableMapOf<String, String>()
-
     fun backUpKtFileStubFile(filePath: String, stubFilePath: String, stubFileName:String, pkgDir:String) {
         val currentMD5 = calcFileMD5(filePath)
-        currentFileMD5Map[filePath] = currentMD5
+        lastBuildFileMD5Map[filePath] = currentMD5
         val pair = Pair(stubFilePath, "")
-        var mutableList = currentFileSubsInfoMap[filePath]
+        var mutableList = lastBuildFileSubsInfoMap[filePath]
         if (mutableList == null) {
             mutableList = mutableListOf()
         }
         mutableList.add(pair)
-        currentFileSubsInfoMap[filePath] = mutableList
+        lastBuildFileSubsInfoMap[filePath] = mutableList
         val backFileDir = File(cacheFileDir, pkgDir)
         if (!backFileDir.exists()) {
             backFileDir.mkdirs()
@@ -84,11 +81,11 @@ class StubCache(val moduleName:String): DefaultHandler() {
             // 写入根元素
             writeStartElement("cache")
             // 写入子元素
-            currentFileMD5Map.forEach { filePath, md5 ->
+            lastBuildFileMD5Map.forEach { filePath, md5 ->
                 writeStartElement("file")
                 writeAttribute("path", filePath)
                 writeAttribute("md5", md5)
-                val classFileInfo =  currentFileSubsInfoMap[filePath]
+                val classFileInfo =  lastBuildFileSubsInfoMap[filePath]
                 assert(classFileInfo!!.isNotEmpty())
                 classFileInfo.forEach {
                     writeStartElement("stub")
