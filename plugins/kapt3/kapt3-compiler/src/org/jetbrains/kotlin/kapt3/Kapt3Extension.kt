@@ -148,7 +148,7 @@ abstract class AbstractKapt3Extension(
         bindingTrace: BindingTrace,
         componentProvider: ComponentProvider
     ): AnalysisResult? {
-        logger.error("[StubCache] ${module.name.asString()} begin do doAnalysis")
+        logger.info("[StubCache] ${module.name.asString()} begin do doAnalysis")
         if (options.mode == APT_ONLY) {
             return AnalysisResult.EMPTY
         }
@@ -162,12 +162,12 @@ abstract class AbstractKapt3Extension(
                 val next = iterator.next()
                 if (stubCache.hasKtFileCache(next.virtualFilePath)) {
                     iterator.remove()
-                    logger.error("${next.virtualFilePath} hit cache, try to restore")
+                    logger.info("${next.virtualFilePath} hit cache, try to restore")
                     stubCache.restoreStubFile(next.virtualFilePath, this.options.stubsOutputDir.absolutePath)
                 }
             }
         }
-        logger.error("${module.name.asString()} cache scan cost ${System.currentTimeMillis() - startTime}, and collection size is ${files.size}")
+        logger.info("${module.name.asString()} cache scan cost ${System.currentTimeMillis() - startTime}, and collection size is ${files.size}")
         return super.doAnalysis(project, module, projectContext, files, bindingTrace, componentProvider)
     }
 
@@ -177,7 +177,7 @@ abstract class AbstractKapt3Extension(
         bindingTrace: BindingTrace,
         files: Collection<KtFile>
     ): AnalysisResult? {
-        logger.error("[StubCache] ${module.name.asString()} begin analysisCompleted")
+        logger.info("[StubCache] ${module.name.asString()} begin analysisCompleted")
         if (setAnnotationProcessingComplete()) return null
         val startTime = System.currentTimeMillis()
         fun doNotGenerateCode() = AnalysisResult.success(BindingContext.EMPTY, module, shouldGenerateCode = false)
@@ -192,7 +192,7 @@ abstract class AbstractKapt3Extension(
                 generateKotlinSourceStubs(context, module)
             }
         }
-        logger.error("generateStubs task finish ${System.currentTimeMillis() - startTime}")
+        logger.info("generateStubs task finish ${System.currentTimeMillis() - startTime}")
         val stubCache = StubCacheManager.getStubCacheByModuleName(module.name.asString())
         val cacheFile = stubCache.getCachePath()
         stubCache.saveCacheToDisk(cacheFile)

@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.kapt3.stubs
 
+import org.jetbrains.kotlin.kapt3.base.util.info
 import org.jetbrains.kotlin.kapt3.util.MessageCollectorBackedKaptLogger
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.DefaultHandler
@@ -35,14 +36,14 @@ class StubCache(val moduleName:String): DefaultHandler() {
 
     fun loadStubsData(path: String) {
         if (!File(path).exists()) {
-            logger?.error("the cache file $path not exist, ignore the cache")
+            logger?.info("the cache file $path not exist, ignore the cache")
             return
         }
         val parserFactory = SAXParserFactory.newInstance()
         val parser = parserFactory.newSAXParser()
         val handler = this
         parser.parse(path, handler)
-        logger?.error("[StubCache] ${moduleName} last cache size is ${lastBuildFileSubsInfoMap.size}")
+        logger?.info("[StubCache] ${moduleName} last cache size is ${lastBuildFileSubsInfoMap.size}")
     }
 
     fun backUpKtFileStubFile(sourceKtFile: String, stubFilePath: String, stubFileDir:String, stubFileName:String, metaFile:File?, pkgDir:String) {
@@ -60,12 +61,12 @@ class StubCache(val moduleName:String): DefaultHandler() {
             backFileDir.mkdirs()
         }
         val backupFile = File(backFileDir, stubFileName)
-        logger?.error("[StubCache] backup  ${backupFile.absolutePath}")
+        logger?.info("[StubCache] backup  ${backupFile.absolutePath}")
         File(stubFilePath).copyTo(backupFile, true)
 
         metaFile?.let {
             val backupMetaFile = File(backFileDir, it.name)
-            logger?.error("[StubCache] backup  ${backupMetaFile.absolutePath}")
+            logger?.info("[StubCache] backup  ${backupMetaFile.absolutePath}")
             it.copyTo(backupMetaFile, true)
         }
     }
