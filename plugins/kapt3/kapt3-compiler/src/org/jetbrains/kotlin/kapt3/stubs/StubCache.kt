@@ -83,13 +83,11 @@ class StubCache(val moduleName:String): DefaultHandler() {
             // 写入根元素
             writeStartElement("cache")
             // 写入子元素
-            fileMd5Map.forEach { filePath, md5 ->
+
+            lastBuildFileSubsInfoMap.forEach { md5, stubList ->
                 writeStartElement("file")
-                writeAttribute("path", filePath)
                 writeAttribute("md5", md5)
-                val classFileInfo =  lastBuildFileSubsInfoMap[md5]
-                assert(classFileInfo!!.isNotEmpty())
-                classFileInfo.forEach {
+                stubList.forEach {
                     writeStartElement("stub")
                     writeAttribute("classPath", it.first)
                     writeAttribute("metaPath", it.second)
@@ -97,11 +95,8 @@ class StubCache(val moduleName:String): DefaultHandler() {
                 }
                 writeEndElement()
             }
-            // 写入结束标签
             writeEndElement()
-            // 结束 XML 写入
             writeEndDocument()
-            // 关闭 XMLStreamWriter
             close()
         }
     }
