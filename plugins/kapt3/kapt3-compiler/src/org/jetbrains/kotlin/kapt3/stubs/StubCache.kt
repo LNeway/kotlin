@@ -87,7 +87,7 @@ class StubCache(val moduleName:String): DefaultHandler() {
                 writeStartElement("file")
                 writeAttribute("path", filePath)
                 writeAttribute("md5", md5)
-                val classFileInfo =  lastBuildFileSubsInfoMap[filePath]
+                val classFileInfo =  lastBuildFileSubsInfoMap[md5]
                 assert(classFileInfo!!.isNotEmpty())
                 classFileInfo.forEach {
                     writeStartElement("stub")
@@ -139,7 +139,6 @@ class StubCache(val moduleName:String): DefaultHandler() {
         if (qName == "file") {
             val md5Index = attributes.getIndex("md5")
             val md5 = attributes.getValue(md5Index)
-            val path = attributes.getValue(attributes.getIndex("path"))
             lastBuildFileMD5Map[path] = md5
             parseKtMd5 = md5
         }
