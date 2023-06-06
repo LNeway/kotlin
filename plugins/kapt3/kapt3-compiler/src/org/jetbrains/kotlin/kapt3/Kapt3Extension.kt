@@ -148,10 +148,20 @@ abstract class AbstractKapt3Extension(
         bindingTrace: BindingTrace,
         componentProvider: ComponentProvider
     ): AnalysisResult? {
-        logger.info("[StubCache] ${module.name.asString()} begin do doAnalysis")
         if (options.mode == APT_ONLY) {
             return AnalysisResult.EMPTY
         }
+        return super.doAnalysis(project, module, projectContext, files, bindingTrace, componentProvider)
+    }
+
+    override fun analysisCompleted(
+        project: Project,
+        module: ModuleDescriptor,
+        bindingTrace: BindingTrace,
+        files: Collection<KtFile>
+    ): AnalysisResult? {
+        logger.info("[StubCache] ${module.name.asString()} begin analysisCompleted")
+        if (setAnnotationProcessingComplete()) return null
         val startTime = System.currentTimeMillis()
         if (files is ArrayList) {
             val stubCache = StubCacheManager.getStubCacheByModuleName(module.name.asString())
@@ -168,18 +178,7 @@ abstract class AbstractKapt3Extension(
             }
         }
         logger.info("${module.name.asString()} cache scan cost ${System.currentTimeMillis() - startTime}, and collection size is ${files.size}")
-        return super.doAnalysis(project, module, projectContext, files, bindingTrace, componentProvider)
-    }
 
-    override fun analysisCompleted(
-        project: Project,
-        module: ModuleDescriptor,
-        bindingTrace: BindingTrace,
-        files: Collection<KtFile>
-    ): AnalysisResult? {
-        logger.info("[StubCache] ${module.name.asString()} begin analysisCompleted")
-        if (setAnnotationProcessingComplete()) return null
-        val startTime = System.currentTimeMillis()
         fun doNotGenerateCode() = AnalysisResult.success(BindingContext.EMPTY, module, shouldGenerateCode = false)
 
         logger.info { "Initial analysis took ${System.currentTimeMillis() - pluginInitializedTime} ms" }
