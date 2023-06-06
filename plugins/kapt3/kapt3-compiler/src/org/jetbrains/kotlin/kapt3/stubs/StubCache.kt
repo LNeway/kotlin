@@ -78,7 +78,7 @@ class StubCache(val moduleName:String): DefaultHandler() {
             val sourceStubFile = cacheFileDir + File.separator + it.first
             val targetFile = File(stubFileOutDir + File.separator + it.first)
             File(sourceStubFile).copyTo(targetFile, true)
-            logger?.error("restore $sourceStubFile to ${targetFile.absolutePath}")
+            logger?.info("restore $sourceStubFile to ${targetFile.absolutePath}")
 
             val sourceMetaFile = cacheFileDir + File.separator + it.second
             val targetMetaFile = File(stubFileOutDir + File.separator + it.second)
