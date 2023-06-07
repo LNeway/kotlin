@@ -163,18 +163,17 @@ abstract class AbstractKapt3Extension(
         logger.info("[StubCache] ${module.name.asString()} begin analysisCompleted")
         if (setAnnotationProcessingComplete()) return null
         val startTime = System.currentTimeMillis()
-        if (files is ArrayList) {
-            val stubCache = StubCacheManager.getStubCacheByModuleName(module.name.asString())
-            stubCache.logger = logger
-            stubCache.loadStubsData(stubCache.getCachePath())
-            val iterator = files.iterator()
-            while (iterator.hasNext()) {
-                val next = iterator.next()
-                if (stubCache.hasKtFileCache(next.virtualFilePath)) {
-                    iterator.remove()
-                    logger.info("${next.virtualFilePath} hit cache, try to restore")
-                    stubCache.restoreStubFile(next.virtualFilePath, this.options.stubsOutputDir.absolutePath)
-                }
+        val filesForStubGeneration = ArrayList(files)
+        val stubCache = StubCacheManager.getStubCacheByModuleName(module.name.asString())
+        stubCache.logger = logger
+        stubCache.loadStubsData(stubCache.getCachePath())
+        val iterator = filesForStubGeneration.iterator()
+        while (iterator.hasNext()) {
+            val next = iterator.next()
+            if (stubCache.hasKtFileCache(next.virtualFilePath)) {
+                iterator.remove()
+                logger.info("${next.virtualFilePath} hit cache, try to restore")
+                stubCache.restoreStubFile(next.virtualFilePath, this.options.stubsOutputDir.absolutePath)
             }
         }
         logger.info("${module.name.asString()} cache scan cost ${System.currentTimeMillis() - startTime}, and collection size is ${files.size}")
@@ -187,12 +186,11 @@ abstract class AbstractKapt3Extension(
         if (options.mode.generateStubs) {
             logger.info { "Kotlin files to compile: " + files.map { it.virtualFile?.name ?: "<in memory ${it.hashCode()}>" } }
 
-            contextForStubGeneration(project, module, bindingContext, files.toList()).use { context ->
+            contextForStubGeneration(project, module, bindingContext, filesForStubGeneration.toList()).use { context ->
                 generateKotlinSourceStubs(context, module)
             }
         }
         logger.info("generateStubs task finish ${System.currentTimeMillis() - startTime}")
-        val stubCache = StubCacheManager.getStubCacheByModuleName(module.name.asString())
         val cacheFile = stubCache.getCachePath()
         stubCache.saveCacheToDisk(cacheFile)
 
