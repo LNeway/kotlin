@@ -126,7 +126,8 @@ object TopDownAnalyzerFacadeForJVM {
 
         val starTime = System.currentTimeMillis()
         container.get<LazyTopDownAnalyzer>().analyzeDeclarations(TopDownAnalysisMode.TopLevelDeclarations, files)
-        println("[KotlinCompile] analyzeDeclarations cost ${System.currentTimeMillis() - starTime}")
+        val time = System.currentTimeMillis() - starTime
+        println("[KotlinCompile] analyzeDeclarations cost $time")
 
         invokeExtensionsOnAnalysisComplete()?.let { return it }
 
