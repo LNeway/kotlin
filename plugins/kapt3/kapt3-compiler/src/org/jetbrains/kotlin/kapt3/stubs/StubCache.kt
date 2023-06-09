@@ -42,7 +42,7 @@ class StubCache(val moduleName:String): DefaultHandler() {
         val parserFactory = SAXParserFactory.newInstance()
         val parser = parserFactory.newSAXParser()
         val handler = this
-        parser.parse(path, handler)
+        //parser.parse(path, handler)
         logger?.info("[StubCache] ${moduleName} last cache size is ${lastBuildFileSubsInfoMap.size}")
     }
 
