@@ -78,6 +78,7 @@ import org.jetbrains.kotlin.resolve.lazy.declarations.FileBasedDeclarationProvid
 import org.jetbrains.kotlin.storage.LockBasedStorageManager
 import org.jetbrains.kotlin.storage.StorageManager
 import java.util.*
+import java.util.concurrent.CountDownLatch
 import kotlin.reflect.KFunction1
 
 object TopDownAnalyzerFacadeForJVM {
@@ -125,12 +126,25 @@ object TopDownAnalyzerFacadeForJVM {
         }
 
         val starTime = System.currentTimeMillis()
-        container.get<LazyTopDownAnalyzer>().analyzeDeclarations(TopDownAnalysisMode.TopLevelDeclarations, files)
-        val time = System.currentTimeMillis() - starTime
-        println("[KotlinCompile] analyzeDeclarations cost $time")
-
+        val count = minOf(files.size, 12);
+        val countDownLatch = CountDownLatch(count)
+        val page = files.size / count;
+        val result = files.chunked(page)
+        result.forEach {
+            object: Thread() {
+                override fun run() {
+                    val s = System.currentTimeMillis()
+                    container.get<LazyTopDownAnalyzer>().analyzeDeclarations(TopDownAnalysisMode.TopLevelDeclarations, files)
+                    val time = System.currentTimeMillis() - s
+                    println("[KotlinCompile] analyzeDeclarations subtask cost $time")
+                    countDownLatch.countDown()
+                }
+            }.start()
+        }
+        countDownLatch.await()
         invokeExtensionsOnAnalysisComplete()?.let { return it }
-
+        val total = System.currentTimeMillis() - starTime
+        println("[KotlinCompile] total analyzeDeclarations cost $total")
         return AnalysisResult.success(trace.bindingContext, module)
     }
 
