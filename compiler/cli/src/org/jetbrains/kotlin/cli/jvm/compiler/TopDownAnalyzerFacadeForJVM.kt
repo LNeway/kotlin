@@ -127,7 +127,6 @@ object TopDownAnalyzerFacadeForJVM {
 
         container.get<LazyTopDownAnalyzer>().analyzeDeclarations(TopDownAnalysisMode.TopLevelDeclarations, files)
         invokeExtensionsOnAnalysisComplete()?.let { return it }
-        val total = System.currentTimeMillis() - starTime
         println("[KotlinCompile] total analyzeDeclarations cost $total")
         return AnalysisResult.success(trace.bindingContext, module)
     }
