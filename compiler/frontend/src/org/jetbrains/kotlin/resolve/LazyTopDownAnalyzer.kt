@@ -239,10 +239,12 @@ class LazyTopDownAnalyzer(
         println("[KotlinCompile] checkRedeclarations")
 
         overrideResolver.check(c)
+        println("[KotlinCompile] overrideResolver")
 
         varianceChecker.check(c)
 
         declarationResolver.resolveAnnotationsOnFiles(c, fileScopeProvider)
+        println("[KotlinCompile] resolveAnnotationsOnFiles")
 
         overloadResolver.checkOverloads(c)
 
