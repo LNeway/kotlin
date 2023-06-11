@@ -126,7 +126,7 @@ object TopDownAnalyzerFacadeForJVM {
         }
 
         val starTime = System.currentTimeMillis()
-        val count = minOf(files.size, 2);
+        val count = minOf(files.size, 3);
         val countDownLatch = CountDownLatch(count)
         val page = files.size / count;
         val result = files.chunked(page)
