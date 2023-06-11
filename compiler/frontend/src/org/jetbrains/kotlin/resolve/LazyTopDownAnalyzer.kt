@@ -214,12 +214,14 @@ class LazyTopDownAnalyzer(
                     }
 
                     val time = System.currentTimeMillis() - s
-                    println("[KotlinCompile] analyzeDeclarations subtask cost $time")
                     countDownLatch.countDown()
+                    println("[KotlinCompile] analyzeDeclarations subtask cost $time and count size is ${countDownLatch.count}" )
                 }
             }.start()
         }
+        println("[KotlinCompile] submit task to thread pools")
         countDownLatch.await()
+        println("[KotlinCompile] ...")
 
         createFunctionDescriptors(c, functions)
 
