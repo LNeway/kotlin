@@ -34,19 +34,19 @@ public class TopDownAnalysisContext implements BodiesResolveContext {
 
     private final DataFlowInfo outerDataFlowInfo;
 
-    private final Map<KtClassOrObject, ClassDescriptorWithResolutionScopes> classes = Collections.synchronizedMap(Maps.newLinkedHashMap());
-    private final Map<KtAnonymousInitializer, ClassDescriptorWithResolutionScopes> anonymousInitializers =  Collections.synchronizedMap(Maps.newLinkedHashMap());
-    private final Set<KtFile> files = Collections.synchronizedSet(new LinkedHashSet<>());
-    private final Map<KtSecondaryConstructor, ClassConstructorDescriptor> secondaryConstructors = Collections.synchronizedMap(Maps.newLinkedHashMap());
+    private final Map<KtClassOrObject, ClassDescriptorWithResolutionScopes> classes = Maps.newLinkedHashMap();
+    private final Map<KtAnonymousInitializer, ClassDescriptorWithResolutionScopes> anonymousInitializers = Maps.newLinkedHashMap();
+    private final Set<KtFile> files = new LinkedHashSet<>();
+    private final Map<KtSecondaryConstructor, ClassConstructorDescriptor> secondaryConstructors = Maps.newLinkedHashMap();
 
-    private final Map<KtNamedFunction, SimpleFunctionDescriptor> functions = Collections.synchronizedMap( Maps.newLinkedHashMap());
-    private final Map<KtProperty, PropertyDescriptor> properties =  Collections.synchronizedMap(Maps.newLinkedHashMap());
-    private final Map<KtParameter, PropertyDescriptor> primaryConstructorParameterProperties =  Collections.synchronizedMap(new HashMap<>());
-    private final Map<KtTypeAlias, TypeAliasDescriptor> typeAliases =  Collections.synchronizedMap(Maps.newLinkedHashMap());
-    private final Map<KtDestructuringDeclarationEntry, PropertyDescriptor> destructuringDeclarationEntries =  Collections.synchronizedMap(Maps.newLinkedHashMap());
+    private final Map<KtNamedFunction, SimpleFunctionDescriptor> functions = Maps.newLinkedHashMap();
+    private final Map<KtProperty, PropertyDescriptor> properties = Maps.newLinkedHashMap();
+    private final Map<KtParameter, PropertyDescriptor> primaryConstructorParameterProperties = new HashMap<>();
+    private final Map<KtTypeAlias, TypeAliasDescriptor> typeAliases = Maps.newLinkedHashMap();
+    private final Map<KtDestructuringDeclarationEntry, PropertyDescriptor> destructuringDeclarationEntries = Maps.newLinkedHashMap();
     private Map<KtCallableDeclaration, CallableMemberDescriptor> members = null;
 
-    private final Map<KtScript, ClassDescriptorWithResolutionScopes> scripts =  Collections.synchronizedMap(Maps.newLinkedHashMap());
+    private final Map<KtScript, ClassDescriptorWithResolutionScopes> scripts = Maps.newLinkedHashMap();
 
     private final TopDownAnalysisMode topDownAnalysisMode;
     private final DeclarationScopeProvider declarationScopeProvider;
@@ -171,7 +171,7 @@ public class TopDownAnalysisContext implements BodiesResolveContext {
     @NotNull
     public Map<KtCallableDeclaration, CallableMemberDescriptor> getMembers() {
         if (members == null) {
-            members =  Collections.synchronizedMap(Maps.newLinkedHashMap());
+            members = Maps.newLinkedHashMap();
             members.putAll(functions);
             members.putAll(properties);
             members.putAll(primaryConstructorParameterProperties);
