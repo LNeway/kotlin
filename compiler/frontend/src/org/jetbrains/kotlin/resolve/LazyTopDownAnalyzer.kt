@@ -236,6 +236,8 @@ class LazyTopDownAnalyzer(
         declarationResolver.checkRedeclarationsInPackages(topLevelDescriptorProvider, topLevelFqNames)
         declarationResolver.checkRedeclarations(c)
 
+        println("[KotlinCompile] checkRedeclarations")
+
         overrideResolver.check(c)
 
         varianceChecker.check(c)
@@ -252,7 +254,7 @@ class LazyTopDownAnalyzer(
             declarations, classifierUsageCheckers,
             ClassifierUsageCheckerContext(trace, languageVersionSettings, deprecationResolver, moduleDescriptor)
         )
-
+        println("[KotlinCompile] checkClassifierUsages")
         return c
     }
 
