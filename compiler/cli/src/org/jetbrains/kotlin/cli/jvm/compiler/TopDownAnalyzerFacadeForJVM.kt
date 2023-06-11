@@ -125,23 +125,7 @@ object TopDownAnalyzerFacadeForJVM {
             }
         }
 
-        val starTime = System.currentTimeMillis()
-        val count = minOf(files.size, 3);
-        val countDownLatch = CountDownLatch(count)
-        val page = files.size / count;
-        val result = files.chunked(page)
-        result.forEach {
-            object: Thread() {
-                override fun run() {
-                    val s = System.currentTimeMillis()
-                    container.get<LazyTopDownAnalyzer>().analyzeDeclarations(TopDownAnalysisMode.TopLevelDeclarations, it)
-                    val time = System.currentTimeMillis() - s
-                    println("[KotlinCompile] analyzeDeclarations subtask cost $time")
-                    countDownLatch.countDown()
-                }
-            }.start()
-        }
-        countDownLatch.await()
+        container.get<LazyTopDownAnalyzer>().analyzeDeclarations(TopDownAnalysisMode.TopLevelDeclarations, files)
         invokeExtensionsOnAnalysisComplete()?.let { return it }
         val total = System.currentTimeMillis() - starTime
         println("[KotlinCompile] total analyzeDeclarations cost $total")
