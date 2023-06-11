@@ -72,7 +72,6 @@ class LazyTopDownAnalyzer(
         val typeAliases = CopyOnWriteArrayList<KtTypeAlias>()
         val destructuringDeclarations = CopyOnWriteArrayList<KtDestructuringDeclaration>()
 
-        val starTime = System.currentTimeMillis()
         val count = minOf(declarations.size, 3);
         val countDownLatch = CountDownLatch(count)
         val page = declarations.size / count;
