@@ -42,6 +42,7 @@ public class KotlinParser implements PsiParser {
     // we need this method because we need psiFile
     @NotNull
     public ASTNode parse(IElementType iElementType, PsiBuilder psiBuilder, PsiFile psiFile) {
+        long startTime = System.currentTimeMillis();
         KotlinParsing ktParsing = KotlinParsing.createForTopLevel(new SemanticWhitespaceAwarePsiBuilderImpl(psiBuilder));
         String extension = FileUtilRt.getExtension(psiFile.getName());
         if (extension.isEmpty() || extension.equals(KotlinFileType.EXTENSION) || (psiFile instanceof KtFile && ((KtFile) psiFile).isCompiled())) {
@@ -50,6 +51,7 @@ public class KotlinParser implements PsiParser {
         else {
             ktParsing.parseScript();
         }
+        System.out.println("[TimeTest] " + psiFile.getName() + "parse cost " + (System.currentTimeMillis() - startTime));
         return psiBuilder.getTreeBuilt();
     }
 
