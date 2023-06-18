@@ -47,10 +47,13 @@ public class KotlinParser implements PsiParser {
     // we need this method because we need psiFile
     @NotNull
     public ASTNode parse(IElementType iElementType, PsiBuilder psiBuilder, PsiFile psiFile) {
-        String path = psiFile.getVirtualFile().getPath();
-        if (nodeMap.containsKey(path)) {
-            System.out.println("[TimeTest] " + psiFile.getName() + "hit cache");
-            return nodeMap.get(path);
+        String path = null;
+        if (psiFile.getVirtualFile() != null) {
+            path = psiFile.getVirtualFile().getPath();
+            if (nodeMap.containsKey(path)) {
+                System.out.println("[TimeTest] " + psiFile.getName() + "hit cache");
+                return nodeMap.get(path);
+            }
         }
 
         long startTime = System.currentTimeMillis();
@@ -63,8 +66,12 @@ public class KotlinParser implements PsiParser {
             ktParsing.parseScript();
         }
         System.out.println("[TimeTest] " + psiFile.getName() + "parse cost " + (System.currentTimeMillis() - startTime));
-        nodeMap.put(path, psiBuilder.getTreeBuilt());
-        return nodeMap.get(path);
+        if (path != null) {
+            nodeMap.put(path, psiBuilder.getTreeBuilt());
+            return nodeMap.get(path);
+        } else {
+           return psiBuilder.getTreeBuilt();
+        }
     }
 
     @NotNull
