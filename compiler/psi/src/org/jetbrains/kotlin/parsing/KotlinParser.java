@@ -27,8 +27,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.idea.KotlinFileType;
 import org.jetbrains.kotlin.psi.KtFile;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class KotlinParser implements PsiParser {
 
+
+    private static Map<String, ASTNode> nodeMap = new HashMap();
 
     public KotlinParser(Project project) {
     }
@@ -42,6 +47,12 @@ public class KotlinParser implements PsiParser {
     // we need this method because we need psiFile
     @NotNull
     public ASTNode parse(IElementType iElementType, PsiBuilder psiBuilder, PsiFile psiFile) {
+        String path = psiFile.getVirtualFile().getPath();
+        if (nodeMap.containsKey(path)) {
+            System.out.println("[TimeTest] " + psiFile.getName() + "hit cache");
+            return nodeMap.get(path);
+        }
+
         long startTime = System.currentTimeMillis();
         KotlinParsing ktParsing = KotlinParsing.createForTopLevel(new SemanticWhitespaceAwarePsiBuilderImpl(psiBuilder));
         String extension = FileUtilRt.getExtension(psiFile.getName());
@@ -52,7 +63,8 @@ public class KotlinParser implements PsiParser {
             ktParsing.parseScript();
         }
         System.out.println("[TimeTest] " + psiFile.getName() + "parse cost " + (System.currentTimeMillis() - startTime));
-        return psiBuilder.getTreeBuilt();
+        nodeMap.put(path, psiBuilder.getTreeBuilt());
+        return nodeMap.get(path);
     }
 
     @NotNull
