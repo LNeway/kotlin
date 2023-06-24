@@ -41,6 +41,7 @@ internal fun getClasspathChanges(
     // todo: removed classes could be processed normally
     if (removedClasspath.isNotEmpty()) {
         reporter.report { "Some files are removed from classpath: $removedClasspath" }
+        BuildLogger.log("Some files are removed from classpath: $removedClasspath")
         return ChangesEither.Unknown(BuildAttribute.DEP_CHANGE_REMOVED_ENTRY)
     }
 
@@ -60,7 +61,7 @@ internal fun getClasspathChanges(
         is Either.Success<Set<File>> -> historyFilesEither.value
         is Either.Error -> {
             reporter.report { "Could not find history files: ${historyFilesEither.reason}" }
-
+            BuildLogger.log("Could not find history files: ${historyFilesEither.reason}")
             return ChangesEither.Unknown(BuildAttribute.DEP_CHANGE_HISTORY_IS_NOT_FOUND)
         }
     }
@@ -81,6 +82,7 @@ internal fun getClasspathChanges(
             }
 
             for (buildDiff in newBuilds) {
+                BuildLogger.log("buildDiff is ${buildDiff.dirtyData}")
                 if (!buildDiff.isIncremental) {
                     reporter.report { "Non-incremental build from dependency $historyFile" }
                     BuildLogger.log( "Non-incremental build from dependency $historyFile" )

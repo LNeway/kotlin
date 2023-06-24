@@ -58,6 +58,7 @@ abstract class ModulesApiHistoryBase(protected val modulesInfo: IncrementalModul
 
         for (jar in jarFiles) {
             val historyEither = getBuildHistoryFilesForJar(jar)
+            BuildLogger.log("getBuildHistoryFilesForJar: ${jar.absolutePath}: $historyEither")
             when (historyEither) {
                 is Either.Success<Set<File>> -> result.addAll(historyEither.value)
                 is Either.Error -> return historyEither
@@ -66,8 +67,9 @@ abstract class ModulesApiHistoryBase(protected val modulesInfo: IncrementalModul
 
         val classFileDirs = classFiles.groupBy { it.parentFile }
         for (dir in classFileDirs.keys) {
-            BuildLogger.log("class file dir ${dir.absolutePath}")
-            when (val historyEither = getBuildHistoryForDir(dir)) {
+            val historyEither = getBuildHistoryForDir(dir)
+            BuildLogger.log("getBuildHistoryFilesForJar: class file dir ${dir.absolutePath}: $historyEither")
+            when (historyEither) {
                 is Either.Success<Set<File>> -> result.addAll(historyEither.value)
                 is Either.Error -> return historyEither
             }
@@ -86,6 +88,7 @@ abstract class ModulesApiHistoryBase(protected val modulesInfo: IncrementalModul
                     setOf(module.buildHistoryFile)
                 parent != null && isInProjectBuildDir(parent) -> {
                     val parentHistory = getBuildHistoryForDir(parent)
+                    BuildLogger.log("getBuildHistoryForDir: file is ${file.absolutePath}: $parentHistory")
                     when (parentHistory) {
                         is Either.Success<Set<File>> -> parentHistory.value
                         is Either.Error -> return parentHistory
