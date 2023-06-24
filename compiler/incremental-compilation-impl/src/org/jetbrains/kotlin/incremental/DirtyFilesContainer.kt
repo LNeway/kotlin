@@ -25,6 +25,9 @@ class DirtyFilesContainer(
             myDirtyFiles.addAll(existingKotlinFiles)
             if (reason != null) {
                 reporter.reportMarkDirty(existingKotlinFiles, reason)
+                existingKotlinFiles.forEach {
+                    BuildLogger.log("${it.absolutePath} is dirty due to $reason")
+                }
             }
         }
     }
@@ -35,6 +38,9 @@ class DirtyFilesContainer(
         val dirtyFilesFromLookups = mapLookupSymbolsToFiles(caches.lookupCache, lookupSymbols, reporter)
         // reason is null, because files are reported in mapLookupSymbolsToFiles
         add(dirtyFilesFromLookups, reason = null)
+        dirtyFilesFromLookups.forEach {
+            BuildLogger.log("LookupSymbol: ${it} is dirty")
+        }
     }
 
     fun addByDirtyClasses(dirtyClassesFqNames: Collection<FqName>) {
@@ -50,5 +56,8 @@ class DirtyFilesContainer(
             mapClassesFqNamesToFiles(listOf(caches.platformCache), fqNamesWithSubtypes, reporter)
         // reason is null, because files are reported in mapClassesFqNamesToFiles
         add(dirtyFilesFromFqNames, reason = null)
+        dirtyFilesFromFqNames.forEach {
+            BuildLogger.log("ClassesFqName: ${it.absolutePath} is dirty")
+        }
     }
 }

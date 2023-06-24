@@ -30,7 +30,7 @@ object BuildLogger {
                 it.write("\r\n".toByteArray())
                 it.flush()
             } catch (ex:Exception) {
-                ex.printStackTrace()
+                throw ex;
             }
         }
     }

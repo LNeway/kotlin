@@ -70,17 +70,20 @@ internal fun getClasspathChanges(
             val allBuilds = BuildDiffsStorage.readDiffsFromFile(historyFile, reporter = reporter)
                 ?: return run {
                     reporter.report { "Could not read diffs from $historyFile" }
+                    BuildLogger.log("Could not read diffs from $historyFile")
                     ChangesEither.Unknown(BuildAttribute.DEP_CHANGE_HISTORY_CANNOT_BE_READ)
                 }
             val (knownBuilds, newBuilds) = allBuilds.partition { it.ts <= lastBuildTS }
             if (knownBuilds.isEmpty()) {
                 reporter.report { "No previously known builds for $historyFile" }
+                BuildLogger.log("No previously known builds for $historyFile")
                 return ChangesEither.Unknown(BuildAttribute.DEP_CHANGE_HISTORY_NO_KNOWN_BUILDS)
             }
 
             for (buildDiff in newBuilds) {
                 if (!buildDiff.isIncremental) {
                     reporter.report { "Non-incremental build from dependency $historyFile" }
+                    BuildLogger.log( "Non-incremental build from dependency $historyFile" )
                     return ChangesEither.Unknown(BuildAttribute.DEP_CHANGE_NON_INCREMENTAL_BUILD_IN_DEP)
 
                 }
