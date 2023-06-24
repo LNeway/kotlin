@@ -122,6 +122,10 @@ class IncrementalJvmCompilerRunner(
     outputFiles = outputFiles,
     buildHistoryFile = buildHistoryFile
 ) {
+
+    init {
+        BuildLogger.init(workingDir)
+    }
     override fun isICEnabled(): Boolean =
         IncrementalCompilation.isEnabledForJvm()
 

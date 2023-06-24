@@ -24,8 +24,14 @@ internal fun getClasspathChanges(
     val classpathSet = HashSet<File>()
     for (file in classpath) {
         when {
-            file.isFile -> classpathSet.add(file)
-            file.isDirectory -> file.walk().filterTo(classpathSet) { it.isFile }
+            file.isFile -> {
+                BuildLogger.log("getClasspathChanges file : ${file.absolutePath}")
+                classpathSet.add(file)
+            }
+            file.isDirectory -> {
+                BuildLogger.log("getClasspathChanges dir : ${file.absolutePath}")
+                file.walk().filterTo(classpathSet) { it.isFile }
+            }
         }
     }
 
@@ -41,6 +47,7 @@ internal fun getClasspathChanges(
     if (modifiedClasspath.isEmpty()) return ChangesEither.Known()
 
     val lastBuildTS = lastBuildInfo.startTS
+    BuildLogger.log("lastBuildTS : $lastBuildTS")
 
     val symbols = HashSet<LookupSymbol>()
     val fqNames = HashSet<FqName>()
@@ -53,6 +60,7 @@ internal fun getClasspathChanges(
         is Either.Success<Set<File>> -> historyFilesEither.value
         is Either.Error -> {
             reporter.report { "Could not find history files: ${historyFilesEither.reason}" }
+
             return ChangesEither.Unknown(BuildAttribute.DEP_CHANGE_HISTORY_IS_NOT_FOUND)
         }
     }
