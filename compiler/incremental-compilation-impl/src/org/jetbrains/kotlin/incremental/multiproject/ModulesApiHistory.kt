@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.incremental.multiproject
 
+import org.jetbrains.kotlin.incremental.BuildLogger
 import org.jetbrains.kotlin.incremental.IncrementalModuleInfo
 import org.jetbrains.kotlin.incremental.util.Either
 import java.io.File
@@ -65,6 +66,7 @@ abstract class ModulesApiHistoryBase(protected val modulesInfo: IncrementalModul
 
         val classFileDirs = classFiles.groupBy { it.parentFile }
         for (dir in classFileDirs.keys) {
+            BuildLogger.log("class file dir ${dir.absolutePath}")
             when (val historyEither = getBuildHistoryForDir(dir)) {
                 is Either.Success<Set<File>> -> result.addAll(historyEither.value)
                 is Either.Error -> return historyEither

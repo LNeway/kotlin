@@ -184,9 +184,11 @@ class IncrementalJvmCompilerRunner(
     ): CompilationMode {
         val dirtyFiles = DirtyFilesContainer(caches, reporter, kotlinSourceFilesExtensions)
         initDirtyFiles(dirtyFiles, changedFiles)
+        BuildLogger.log("calculateSourcesToCompileImpl")
 
         val lastBuildInfo = BuildInfo.read(lastBuildInfoFile) ?: return CompilationMode.Rebuild(BuildAttribute.NO_BUILD_HISTORY)
         reporter.reportVerbose { "Last Kotlin Build info -- $lastBuildInfo" }
+        BuildLogger.log("Last Kotlin Build info -- $lastBuildInfo")
 
         val classpathChanges = reporter.measure(BuildTime.IC_ANALYZE_CHANGES_IN_DEPENDENCIES) {
             getClasspathChanges(args.classpathAsList, changedFiles, lastBuildInfo, modulesApiHistory, reporter)
@@ -198,10 +200,12 @@ class IncrementalJvmCompilerRunner(
                 reporter.report {
                     "Could not get classpath's changes: ${classpathChanges.reason}"
                 }
+                BuildLogger.log("Could not get classpath's changes: ${classpathChanges.reason}")
                 return CompilationMode.Rebuild(classpathChanges.reason)
             }
             is ChangesEither.Known -> {
                 dirtyFiles.addByDirtySymbols(classpathChanges.lookupSymbols)
+                BuildLogger.log("ChangesEither.Known: ${classpathChanges.lookupSymbols}")
                 dirtyClasspathChanges = classpathChanges.fqNames
                 dirtyFiles.addByDirtyClasses(classpathChanges.fqNames)
             }

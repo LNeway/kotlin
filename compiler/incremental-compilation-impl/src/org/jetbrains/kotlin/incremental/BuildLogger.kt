@@ -18,9 +18,9 @@ object BuildLogger {
     private var logFileOutputStream:FileOutputStream? = null
     fun init(buildDir: File) {
         val currentDate = Date()
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd-HH:mm:ss")
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss")
         val formattedDate = dateFormat.format(currentDate)
-        logFileOutputStream = FileOutputStream(File(buildDir, formattedDate))
+        logFileOutputStream = FileOutputStream(File(buildDir, "$formattedDate-build.log"))
     }
 
     fun log(message: String) {
